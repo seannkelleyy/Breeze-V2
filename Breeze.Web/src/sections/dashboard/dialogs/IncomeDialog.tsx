@@ -13,18 +13,20 @@ import { useDeleteIncome } from '../../../services/hooks/income/useDeleteIncome'
 import { usePatchIncome } from '../../../services/hooks/income/usePatchIncome'
 import { usePostIncome } from '../../../services/hooks/income/usePostIncome'
 import { useBudgetContext } from '../../../services/providers/BudgetProvider'
+import { useUser } from '@clerk/clerk-react'
 
 type IncomeDialogProps = {
 	existingIncome?: Income
 }
 
 export const IncomeDialog = ({ existingIncome }: IncomeDialogProps) => {
+	const user = useUser().user
 	const [open, setOpen] = useState(false)
 	const { budget, refetchIncomes, refetchBudget } = useBudgetContext()
 
 	const isEditing = !!existingIncome
 	const defaultIncome = existingIncome || {
-		userId: '',
+		userId: user?.id ?? '',
 		budgetId: budget?.id ?? -1,
 		name: '',
 		amount: 0,
@@ -32,7 +34,7 @@ export const IncomeDialog = ({ existingIncome }: IncomeDialogProps) => {
 	}
 
 	const formSchema = z.object({
-		id: z.number(),
+		id: z.number().optional(),
 		userId: z.string(),
 		budgetId: z.number(),
 		name: z.string().min(1, { message: 'Name is required' }),
@@ -49,6 +51,7 @@ export const IncomeDialog = ({ existingIncome }: IncomeDialogProps) => {
 
 	const postMutation = usePostIncome({
 		onSettled: () => {
+			console.log('Post mutation settled')
 			refetchBudget()
 			refetchIncomes()
 			setOpen(false)
