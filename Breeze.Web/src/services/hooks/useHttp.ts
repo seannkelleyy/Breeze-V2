@@ -1,6 +1,6 @@
 import { useAuth } from '@clerk/clerk-react'
-import axios, { AxiosError } from 'axios'
 import { useQuery } from '@tanstack/react-query'
+import axios, { AxiosError } from 'axios'
 
 const handleError = (error: AxiosError) => {
 	if (error instanceof AxiosError) {
@@ -32,7 +32,7 @@ const useHttp = () => {
 		},
 		(error) => {
 			return Promise.reject(error)
-		},
+		}
 	)
 
 	const checkForAccessToken = async () => {
@@ -128,4 +128,3 @@ const useHttp = () => {
 }
 
 export default useHttp
-

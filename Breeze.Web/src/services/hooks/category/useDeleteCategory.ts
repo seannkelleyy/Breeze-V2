@@ -1,5 +1,7 @@
-import { useMutation } from '@tanstack/react-query'
 import { useCallback } from 'react'
+
+import { useMutation } from '@tanstack/react-query'
+
 import { Category, useCategories } from './categoryServices'
 
 type DeleteCategoryProps = {
@@ -33,4 +35,3 @@ export const useDeleteCategory = ({ onSuccess, onSettled }: DeleteCategoryProps)
 		onSettled: onSettled,
 	})
 }
-

@@ -18,4 +18,3 @@ export const testCategories: Category[] = [
 		allocation: 340,
 	},
 ]
-

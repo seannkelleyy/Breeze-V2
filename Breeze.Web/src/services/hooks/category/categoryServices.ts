@@ -1,4 +1,4 @@
-import useHttp from "../useHttp"
+import useHttp from '../useHttp'
 
 export type Category = {
 	id?: number

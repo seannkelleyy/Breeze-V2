@@ -52,10 +52,7 @@ export function ThemeProvider({ children, storageKey = 'vite-ui-theme', ...props
 	}
 
 	return (
-		<ThemeProviderContext.Provider
-			{...props}
-			value={value}
-		>
+		<ThemeProviderContext.Provider {...props} value={value}>
 			{children}
 		</ThemeProviderContext.Provider>
 	)
@@ -69,4 +66,3 @@ export const useTheme = () => {
 
 	return context
 }
-

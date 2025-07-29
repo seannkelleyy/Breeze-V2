@@ -1,5 +1,7 @@
-import { useMutation } from '@tanstack/react-query'
 import { useCallback } from 'react'
+
+import { useMutation } from '@tanstack/react-query'
+
 import { Income, useIncomes } from './incomeServices'
 
 type PostIncomeProps = {
@@ -14,6 +16,7 @@ type PostIncomeProps = {
  */
 
 type PostIncomeMutationProps = {
+	budgetId: number
 	income: Income
 }
 
@@ -25,7 +28,7 @@ type PostIncomeMutationProps = {
 export const usePostIncome = ({ onSuccess, onSettled }: PostIncomeProps) => {
 	const { postIncome } = useIncomes()
 
-	const mutationFn = useCallback(({ income }: PostIncomeMutationProps) => postIncome(income), [postIncome])
+	const mutationFn = useCallback(({ budgetId, income }: PostIncomeMutationProps) => postIncome(budgetId, income), [postIncome])
 
 	return useMutation({
 		mutationFn,
@@ -33,4 +36,3 @@ export const usePostIncome = ({ onSuccess, onSettled }: PostIncomeProps) => {
 		onSettled: onSettled,
 	})
 }
-

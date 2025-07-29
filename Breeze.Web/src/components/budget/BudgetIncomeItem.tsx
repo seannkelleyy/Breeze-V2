@@ -1,7 +1,8 @@
-import { Input } from '../../components/ui/input'
-import { FormField, FormItem, FormControl } from '../../components/ui/form'
-import { DeleteConfirmationDialog } from '../../components/deleteConfirmation/DeleteConfirmationDialog'
 import { UseFormReturn } from 'react-hook-form'
+
+import { DeleteConfirmationDialog } from '@/components/deleteConfirmation/DeleteConfirmationDialog'
+import { FormControl, FormField, FormItem } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 
 type BudgetIncomeItemProps = {
 	index: number
@@ -30,20 +31,14 @@ type BudgetIncomeItemProps = {
 }
 export const BudgetIncomeItem = ({ index, form, deleteIncome }: BudgetIncomeItemProps) => {
 	return (
-		<section
-			className='flex gap-2 items-center'
-			title='Budget Income'
-		>
+		<section className="flex gap-2 items-center" title="Budget Income">
 			<FormField
 				control={form.control}
 				name={`incomes.${index}.name`}
 				render={({ field }) => (
 					<FormItem>
 						<FormControl>
-							<Input
-								{...field}
-								placeholder='Income Name'
-							/>
+							<Input {...field} placeholder="Income Name" />
 						</FormControl>
 					</FormItem>
 				)}
@@ -54,11 +49,7 @@ export const BudgetIncomeItem = ({ index, form, deleteIncome }: BudgetIncomeItem
 				render={({ field }) => (
 					<FormItem>
 						<FormControl>
-							<Input
-								type='number'
-								{...field}
-								placeholder='Amount'
-							/>
+							<Input type="number" {...field} placeholder="Amount" />
 						</FormControl>
 					</FormItem>
 				)}
@@ -69,21 +60,16 @@ export const BudgetIncomeItem = ({ index, form, deleteIncome }: BudgetIncomeItem
 				render={({ field }) => (
 					<FormItem>
 						<FormControl>
-							<Input
-								{...field}
-								type='date'
-								placeholder='Income Date'
-							/>
+							<Input {...field} type="date" placeholder="Income Date" />
 						</FormControl>
 					</FormItem>
 				)}
 			/>
 			<DeleteConfirmationDialog
-				itemType='income'
+				itemType="income"
 				additionalText={`You are about to delete the income: ${form.getValues().incomes[index].name}`}
 				onDelete={() => deleteIncome(index)}
 			/>
 		</section>
 	)
 }
-

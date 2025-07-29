@@ -34,4 +34,3 @@ export const testExpenses: Expense[] = [
 		date: '2021-01-02',
 	},
 ]
-

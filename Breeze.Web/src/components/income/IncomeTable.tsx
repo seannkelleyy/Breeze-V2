@@ -1,3 +1,5 @@
+import * as React from 'react'
+
 import {
 	ColumnDef,
 	ColumnFiltersState,
@@ -11,13 +13,14 @@ import {
 } from '@tanstack/react-table'
 import dayjs from 'dayjs'
 import { ArrowUpDown } from 'lucide-react'
-import * as React from 'react'
-import { Button } from '../../../components/ui/button'
-import { Input } from '../../../components/ui/input'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../components/ui/table'
-import { Income } from '../../../services/hooks/income/incomeServices'
-import { useBudgetContext } from '../../../services/providers/BudgetProvider'
-import { IncomeDialog } from '../dialogs/IncomeDialog'
+
+import { Income } from '@/services/hooks/income/incomeServices'
+import { useBudgetContext } from '@/services/providers/BudgetProvider'
+
+import { Button } from '../ui/button'
+import { Input } from '../ui/input'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
+import { EditIncomeDialog } from './dialogs/EditIncomeDialog'
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const columns: ColumnDef<Income>[] = [
@@ -25,10 +28,7 @@ export const columns: ColumnDef<Income>[] = [
 		accessorKey: 'name',
 		header: ({ column }) => {
 			return (
-				<Button
-					variant='ghost'
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
+				<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
 					Name
 					<ArrowUpDown />
 				</Button>
@@ -39,10 +39,7 @@ export const columns: ColumnDef<Income>[] = [
 		accessorKey: 'amount',
 		header: ({ column }) => {
 			return (
-				<Button
-					variant='ghost'
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
+				<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
 					Amount
 					<ArrowUpDown />
 				</Button>
@@ -54,17 +51,14 @@ export const columns: ColumnDef<Income>[] = [
 				style: 'currency',
 				currency: 'USD',
 			}).format(amount)
-			return <div className='text-left font-medium'>{formatted}</div>
+			return <div className="text-left font-medium">{formatted}</div>
 		},
 	},
 	{
 		accessorKey: 'date',
 		header: ({ column }) => {
 			return (
-				<Button
-					variant='ghost'
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
+				<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
 					Date
 					<ArrowUpDown />
 				</Button>
@@ -75,19 +69,6 @@ export const columns: ColumnDef<Income>[] = [
 			return dayjs(date).format('MMMM D, YYYY')
 		},
 	},
-	{
-		id: 'actions',
-		enableHiding: false,
-		cell: ({ row }) => {
-			const income = row.original
-
-			return (
-				<div className='flex justify-end'>
-					<IncomeDialog existingIncome={income} />
-				</div>
-			)
-		},
-	},
 ]
 
 export function IncomeTable() {
@@ -96,6 +77,11 @@ export function IncomeTable() {
 	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
 	const [rowSelection, setRowSelection] = React.useState({})
 	const { incomes = [] } = useBudgetContext()
+
+	// Calculate total amount
+	const totalAmount = React.useMemo(() => {
+		return incomes.reduce((sum, income) => sum + income.amount, 0)
+	}, [incomes])
 
 	const table = useReactTable({
 		data: incomes ?? [],
@@ -116,26 +102,32 @@ export function IncomeTable() {
 	})
 
 	return (
-		<section
-			title='Incomes'
-			className='w-full '
-		>
+		<section title="Incomes" className="w-full ">
 			<Input
-				placeholder='Filter names...'
+				placeholder="Filter names..."
 				value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
 				onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
-				className='w-full my-2'
+				className="w-full my-2"
 			/>
-			<section
-				className='max-h-96 overflow-auto rounded-md border'
-				title='Incomes Table'
-			>
-				<Table className='w-full table-fixed'>
-					<TableHeader className='w-full'>
+			<div className="flex justify-between items-center mb-2">
+				<span className="text-sm text-muted-foreground">Total Incomes: {incomes.length}</span>
+				<span className="text-sm font-medium">
+					Total Amount:{' '}
+					{new Intl.NumberFormat('en-US', {
+						style: 'currency',
+						currency: 'USD',
+					}).format(totalAmount)}
+				</span>
+			</div>
+			<section className="max-h-96 overflow-auto rounded-md border" title="Incomes Table">
+				<Table className="w-full table-fixed">
+					<TableHeader className="w-full">
 						{table.getHeaderGroups().map((headerGroup) => (
 							<TableRow key={headerGroup.id}>
 								{headerGroup.headers.map((header) => (
-									<TableHead key={header.id}>{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}</TableHead>
+									<TableHead key={header.id}>
+										{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+									</TableHead>
 								))}
 							</TableRow>
 						))}
@@ -143,21 +135,17 @@ export function IncomeTable() {
 					<TableBody>
 						{table.getRowModel().rows?.length > 0 ? (
 							table.getRowModel().rows.map((row) => (
-								<TableRow
-									key={row.id}
-									data-state={row.getIsSelected() && 'selected'}
-								>
+								<TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
 									{row.getVisibleCells().map((cell) => (
-										<TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+										<TableCell key={cell.id}>
+											<EditIncomeDialog existingIncome={row.original}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</EditIncomeDialog>
+										</TableCell>
 									))}
 								</TableRow>
 							))
 						) : (
-							<TableRow className='w-full'>
-								<TableCell
-									colSpan={columns.length}
-									className='h-24 text-center w-full'
-								>
+							<TableRow className="w-full">
+								<TableCell colSpan={columns.length} className="h-24 text-center w-full">
 									No results.
 								</TableCell>
 							</TableRow>
@@ -168,4 +156,3 @@ export function IncomeTable() {
 		</section>
 	)
 }
-

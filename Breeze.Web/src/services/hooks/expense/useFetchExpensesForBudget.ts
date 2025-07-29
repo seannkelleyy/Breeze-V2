@@ -1,5 +1,7 @@
-import { useQuery } from '@tanstack/react-query'
 import { useCallback } from 'react'
+
+import { useQuery } from '@tanstack/react-query'
+
 import { Expense, useExpenses } from './expenseServices'
 
 type FetchExpensesForBudgetProps = {
@@ -26,4 +28,3 @@ export const useFetchExpensesForBudget = ({ budgetId }: FetchExpensesForBudgetPr
 		retry: 3,
 	})
 }
-

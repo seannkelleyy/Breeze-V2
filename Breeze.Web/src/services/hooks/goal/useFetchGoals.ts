@@ -1,5 +1,7 @@
-import { useQuery } from '@tanstack/react-query'
 import { useCallback } from 'react'
+
+import { useQuery } from '@tanstack/react-query'
+
 import { Goal, useGoals } from './goalServices'
 
 type FetchGoalProps = {
@@ -26,4 +28,3 @@ export const useFetchGoals = ({ userId }: FetchGoalProps) => {
 		enabled: true,
 	})
 }
-

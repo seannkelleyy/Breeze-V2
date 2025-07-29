@@ -162,4 +162,3 @@ export const testIncomes: Income[] = [
 		date: '2024-12-08',
 	},
 ]
-

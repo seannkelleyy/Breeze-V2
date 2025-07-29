@@ -1,10 +1,10 @@
-import useHttp from "../useHttp"
+import useHttp from '../useHttp'
 
 export type Goal = {
-    id?: number,
-    userId: string,
-    description: string,
-    isCompleted: boolean,
+	id?: number
+	userId: string
+	description: string
+	isCompleted: boolean
 }
 
 /**
@@ -21,5 +21,5 @@ export const useGoals = () => {
 
 	const deleteGoal = async (userId: string, goalId: number) => deleteOne<Goal>(`users/${userId}/goals/${goalId}`)
 
-	return {  getGoals, postGoal, patchGoal, deleteGoal }
+	return { getGoals, postGoal, patchGoal, deleteGoal }
 }

@@ -1,5 +1,7 @@
-import { useQuery } from '@tanstack/react-query'
 import { useCallback } from 'react'
+
+import { useQuery } from '@tanstack/react-query'
+
 import { Category, useCategories } from './categoryServices'
 
 type FetchCategoryProps = {
@@ -31,4 +33,3 @@ export const useFetchCategories = ({ budgetId, enabled }: FetchCategoryProps) =>
 		enabled: enabled,
 	})
 }
-

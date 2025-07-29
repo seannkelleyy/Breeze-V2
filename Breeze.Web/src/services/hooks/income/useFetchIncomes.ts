@@ -1,5 +1,7 @@
-import { useQuery } from '@tanstack/react-query'
 import { useCallback } from 'react'
+
+import { useQuery } from '@tanstack/react-query'
+
 import { Income, useIncomes } from './incomeServices'
 
 type FetchIncomesProps = {
@@ -31,4 +33,3 @@ export const useFetchIncomes = ({ budgetId, enabled }: FetchIncomesProps) => {
 		enabled: enabled,
 	})
 }
-

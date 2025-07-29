@@ -1,13 +1,15 @@
-import React, { useState, useContext, useEffect, useMemo } from 'react'
-import { useFetchBudget } from '../hooks/budget/useFetchBudget'
-import { useFetchIncomes } from '../hooks/income/useFetchIncomes'
-import { Budget } from '../hooks/budget/budgetServices'
-import { Category } from '../hooks/category/categoryServices'
-import { Income } from '../hooks/income/incomeServices'
-import { useFetchCategories } from '../hooks/category/useFetchCategories'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
+
 import dayjs, { Dayjs } from 'dayjs'
+
+import { Budget } from '../hooks/budget/budgetServices'
+import { useFetchBudget } from '../hooks/budget/useFetchBudget'
+import { Category } from '../hooks/category/categoryServices'
+import { useFetchCategories } from '../hooks/category/useFetchCategories'
 import { Expense } from '../hooks/expense/expenseServices'
 import { useFetchExpensesForBudget } from '../hooks/expense/useFetchExpensesForBudget'
+import { Income } from '../hooks/income/incomeServices'
+import { useFetchIncomes } from '../hooks/income/useFetchIncomes'
 
 type BudgetProviderProps = { children: React.ReactNode }
 type BudgetContextType = {
@@ -39,7 +41,6 @@ export const BudgetDataProvider: React.FC<BudgetProviderProps> = ({ children }) 
 
 	useEffect(() => {
 		setTotalSpent(categories.reduce((sum, category) => sum + category.currentSpend, 0))
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [sortedCategories])
 
 	const getBudgetForDate = async (year: number, month: number) => {
@@ -52,7 +53,6 @@ export const BudgetDataProvider: React.FC<BudgetProviderProps> = ({ children }) 
 				throw new Error('No budget found')
 			}
 			return { status: 200, budget }
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (error: any) {
 			console.error('An error occurred while fetching the budget:', error)
 			if (error.message === 'No budget found') {
@@ -62,12 +62,23 @@ export const BudgetDataProvider: React.FC<BudgetProviderProps> = ({ children }) 
 		}
 	}
 	return (
-		<BudgetContext.Provider value={{ budget, totalSpent, incomes, categories, expenses, getBudgetForDate, refetchBudget, refetchIncomes, refetchCategories, refetchExpenses }}>
+		<BudgetContext.Provider
+			value={{
+				budget,
+				totalSpent,
+				incomes,
+				categories,
+				expenses,
+				getBudgetForDate,
+				refetchBudget,
+				refetchIncomes,
+				refetchCategories,
+				refetchExpenses,
+			}}
+		>
 			{children}
 		</BudgetContext.Provider>
 	)
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useBudgetContext = () => useContext(BudgetContext)
-

@@ -1,7 +1,8 @@
-import { Input } from '../../components/ui/input'
-import { FormField, FormItem, FormControl } from '../../components/ui/form'
-import { DeleteConfirmationDialog } from '../../components/deleteConfirmation/DeleteConfirmationDialog'
 import { UseFormReturn } from 'react-hook-form'
+
+import { DeleteConfirmationDialog } from '@/components/deleteConfirmation/DeleteConfirmationDialog'
+import { FormControl, FormField, FormItem } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 
 type BudgetExpenseItemProps = {
 	index: number
@@ -31,20 +32,14 @@ type BudgetExpenseItemProps = {
 
 export const BudgetExpenseItem = ({ index, form, deleteCategory }: BudgetExpenseItemProps) => {
 	return (
-		<section
-			className='flex gap-2 items-center'
-			title='Budget Expense'
-		>
+		<section className="flex gap-2 items-center" title="Budget Expense">
 			<FormField
 				control={form.control}
 				name={`categories.${index}.name`}
 				render={({ field }) => (
 					<FormItem>
 						<FormControl>
-							<Input
-								{...field}
-								placeholder='Expense Name'
-							/>
+							<Input {...field} placeholder="Expense Name" />
 						</FormControl>
 					</FormItem>
 				)}
@@ -55,17 +50,13 @@ export const BudgetExpenseItem = ({ index, form, deleteCategory }: BudgetExpense
 				render={({ field }) => (
 					<FormItem>
 						<FormControl>
-							<Input
-								type='number'
-								{...field}
-								placeholder='Allocation'
-							/>
+							<Input type="number" {...field} placeholder="Allocation" />
 						</FormControl>
 					</FormItem>
 				)}
 			/>
 			<DeleteConfirmationDialog
-				itemType='expense category'
+				itemType="expense category"
 				additionalText={
 					<>
 						<p>Deleting this category will remove all expenses associated with it.</p>
@@ -77,4 +68,3 @@ export const BudgetExpenseItem = ({ index, form, deleteCategory }: BudgetExpense
 		</section>
 	)
 }
-

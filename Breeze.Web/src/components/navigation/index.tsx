@@ -1,5 +1,5 @@
-import { MobileNavigation } from './MobileNavigation'
 import { DesktopNavigation } from './DesktopNavigation'
+import { MobileNavigation } from './MobileNavigation'
 
 export const Navigation = () => {
 	return (
@@ -9,4 +9,3 @@ export const Navigation = () => {
 		</>
 	)
 }
-

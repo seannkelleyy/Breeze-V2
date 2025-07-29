@@ -1,3 +1,5 @@
+import * as React from 'react'
+
 import {
 	ColumnDef,
 	ColumnFiltersState,
@@ -11,26 +13,27 @@ import {
 } from '@tanstack/react-table'
 import dayjs from 'dayjs'
 import { ArrowUpDown } from 'lucide-react'
-import * as React from 'react'
-import { Button } from '../../../components/ui/button'
-import { Input } from '../../../components/ui/input'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../components/ui/table'
-import { Expense } from '../../../services/hooks/expense/expenseServices'
-import { useBudgetContext } from '../../../services/providers/BudgetProvider'
-import { ExpenseDialog } from '../dialogs/ExpenseDialog'
 
-// eslint-disable-next-line react-refresh/only-export-components
+import { Expense } from '@/services/hooks/expense/expenseServices'
+import { useBudgetContext } from '@/services/providers/BudgetProvider'
+
+import { Button } from '../ui/button'
+import { Input } from '../ui/input'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
+import { EditExpenseDialog } from './dialogs/EditExpenseDialog'
+
 export const columns: ColumnDef<Expense>[] = [
 	{
 		accessorKey: 'name',
 		header: ({ column }) => {
 			return (
 				<Button
-					variant='ghost'
+					variant="ghost"
+					className="flex items-center px-1 text-xs sm:text-sm"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
 					Name
-					<ArrowUpDown />
+					<ArrowUpDown className="w-3 h-3 sm:w-4 sm:h-4" />
 				</Button>
 			)
 		},
@@ -40,11 +43,12 @@ export const columns: ColumnDef<Expense>[] = [
 		header: ({ column }) => {
 			return (
 				<Button
-					variant='ghost'
+					variant="ghost"
+					className="flex items-center px-1 text-xs sm:text-sm"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
 					Amount
-					<ArrowUpDown />
+					<ArrowUpDown className="w-3 h-3 sm:w-4 sm:h-4" />
 				</Button>
 			)
 		},
@@ -58,11 +62,12 @@ export const columns: ColumnDef<Expense>[] = [
 		header: ({ column }) => {
 			return (
 				<Button
-					variant='ghost'
+					variant="ghost"
+					className="flex items-center px-1 text-xs sm:text-sm"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
 					Date
-					<ArrowUpDown />
+					<ArrowUpDown className="w-3 h-3 sm:w-4 sm:h-4" />
 				</Button>
 			)
 		},
@@ -76,32 +81,20 @@ export const columns: ColumnDef<Expense>[] = [
 		header: ({ column }) => {
 			return (
 				<Button
-					variant='ghost'
+					variant="ghost"
+					className="flex items-center px-1 text-xs sm:text-sm"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
 					Category
-					<ArrowUpDown />
+					<ArrowUpDown className="w-3 h-3 sm:w-4 sm:h-4" />
 				</Button>
 			)
 		},
 		cell: ({ row }) => {
 			const categoryId = row.getValue('categoryId') as number
-			// eslint-disable-next-line react-hooks/rules-of-hooks
 			const { categories } = useBudgetContext()
 			const category = categories.find((cat) => cat.id === categoryId)
 			return category ? category.name : 'Unknown'
-		},
-	},
-	{
-		id: 'actions',
-		cell: ({ row }) => {
-			const expense = row.original
-
-			return (
-				<div className='flex justify-end'>
-					<ExpenseDialog existingExpense={expense} />
-				</div>
-			)
 		},
 	},
 ]
@@ -142,21 +135,15 @@ export function ExpensesTable() {
 	}
 
 	return (
-		<section
-			title='Expenses'
-			className='w-full'
-		>
-			<section
-				className='flex flex-wrap gap-2 pb-2'
-				title='Filter Categories'
-			>
+		<section title="Expenses" className="w-full">
+			<section className="flex flex-wrap gap-2 pb-2" title="Filter Categories">
 				{['All', ...uniqueCategories].map((category) => {
 					const isActive = activeCategory === category || (category === 'All' && activeCategory === '')
 					return (
 						<Button
 							key={category}
 							onClick={() => handleCategoryClick(category === 'All' ? '' : category)}
-							variant='outline'
+							variant="outline"
 							className={isActive ? 'bg-accent text-white' : ''}
 						>
 							{category}
@@ -165,25 +152,24 @@ export function ExpensesTable() {
 				})}
 			</section>
 			<Input
-				placeholder='Filter names...'
+				placeholder="Filter names..."
 				value={nameFilter}
-				className='w-full my-2'
+				className="w-full my-2"
 				onChange={(event) => {
 					const value = event.target.value
 					setNameFilter(value)
 					table.getColumn('name')?.setFilterValue(value)
 				}}
 			/>
-			<section
-				className='max-h-96 overflow-auto rounded-md border'
-				title='Expenses Table'
-			>
-				<Table className='w-full table-fixed'>
+			<section className="max-h-96 overflow-auto rounded-md border" title="Expenses Table">
+				<Table className="w-full table-fixed">
 					<TableHeader>
 						{table.getHeaderGroups().map((headerGroup) => (
 							<TableRow key={headerGroup.id}>
 								{headerGroup.headers.map((header) => (
-									<TableHead key={header.id}>{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}</TableHead>
+									<TableHead key={header.id}>
+										{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+									</TableHead>
 								))}
 							</TableRow>
 						))}
@@ -191,19 +177,13 @@ export function ExpensesTable() {
 					<TableBody>
 						{status === 'loading' ? (
 							<TableRow>
-								<TableCell
-									colSpan={columns.length}
-									className='text-center'
-								>
+								<TableCell colSpan={columns.length} className="text-center">
 									Loading...
 								</TableCell>
 							</TableRow>
 						) : status === 'error' ? (
 							<TableRow>
-								<TableCell
-									colSpan={columns.length}
-									className='text-center'
-								>
+								<TableCell colSpan={columns.length} className="text-center">
 									Error loading expenses. Please try again.
 								</TableCell>
 							</TableRow>
@@ -211,16 +191,17 @@ export function ExpensesTable() {
 							table.getRowModel().rows.map((row) => (
 								<TableRow key={row.id}>
 									{row.getVisibleCells().map((cell) => (
-										<TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+										<TableCell key={cell.id}>
+											<EditExpenseDialog existingExpense={row.original}>
+												{flexRender(cell.column.columnDef.cell, cell.getContext())}
+											</EditExpenseDialog>
+										</TableCell>
 									))}
 								</TableRow>
 							))
 						) : (
 							<TableRow>
-								<TableCell
-									colSpan={columns.length}
-									className='text-center'
-								>
+								<TableCell colSpan={columns.length} className="text-center">
 									No results found.
 								</TableCell>
 							</TableRow>
@@ -231,4 +212,3 @@ export function ExpensesTable() {
 		</section>
 	)
 }
-

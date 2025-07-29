@@ -1,5 +1,7 @@
-import { useMutation } from '@tanstack/react-query'
 import { useCallback } from 'react'
+
+import { useMutation } from '@tanstack/react-query'
+
 import { useGoals } from './goalServices'
 
 type DeleteGoalProps = {
@@ -35,4 +37,3 @@ export const useDeleteGoal = ({ onSuccess, onSettled }: DeleteGoalProps) => {
 		onSettled: onSettled,
 	})
 }
-

@@ -16,17 +16,19 @@ export type Expense = {
 export const useExpenses = () => {
 	const { getMany, post, patch, deleteOne } = useHttp()
 
-	const getExpensesForCategory = async (category: Category): Promise<Expense[]> => await getMany<Expense>(`budgets/${category.budgetId}/categories/${category.id}/expenses`)
+	const getExpensesForCategory = async (category: Category): Promise<Expense[]> =>
+		await getMany<Expense>(`budgets/${category.budgetId}/categories/${category.id}/expenses`)
 
 	const getExpensesForBudget = async (budgetId: number): Promise<Expense[]> => await getMany<Expense>(`budgets/${budgetId}/expenses`)
 
-	const postExpense = async (budgetId: number, expense: Expense): Promise<number> => post<number, Expense>(`budgets/${budgetId}/categories/${expense.categoryId}/expenses`, expense)
+	const postExpense = async (budgetId: number, expense: Expense): Promise<number> =>
+		post<number, Expense>(`budgets/${budgetId}/categories/${expense.categoryId}/expenses`, expense)
 
 	const patchExpense = async (budgetId: number, expense: Expense): Promise<number> =>
 		patch<number, Expense>(`budgets/${budgetId}/categories/${expense.categoryId}/expenses`, expense)
 
-	const deleteExpense = async (budgetId: number, expense: Expense) => deleteOne<Expense>(`budgets/${budgetId}/categories/${expense.categoryId}/expenses/${expense.id}`)
+	const deleteExpense = async (budgetId: number, expense: Expense) =>
+		deleteOne<Expense>(`budgets/${budgetId}/categories/${expense.categoryId}/expenses/${expense.id}`)
 
 	return { getExpensesForCategory, getExpensesForBudget, postExpense, patchExpense, deleteExpense }
 }
-

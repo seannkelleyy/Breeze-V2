@@ -1,5 +1,7 @@
-import { useMutation } from '@tanstack/react-query'
 import { useCallback } from 'react'
+
+import { useMutation } from '@tanstack/react-query'
+
 import { Expense, useExpenses } from './expenseServices'
 
 type DeleteExpenseProps = {
@@ -35,4 +37,3 @@ export const useDeleteExpense = ({ onSuccess, onSettled }: DeleteExpenseProps) =
 		onSettled: onSettled,
 	})
 }
-

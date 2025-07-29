@@ -1,5 +1,7 @@
-import { useMutation } from '@tanstack/react-query'
 import { useCallback } from 'react'
+
+import { useMutation } from '@tanstack/react-query'
+
 import { Goal, useGoals } from './goalServices'
 
 type PostGoalProps = {
@@ -35,4 +37,3 @@ export const usePostGoal = ({ onSuccess, onSettled }: PostGoalProps) => {
 		onSettled: onSettled,
 	})
 }
-

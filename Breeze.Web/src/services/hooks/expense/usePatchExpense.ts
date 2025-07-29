@@ -1,5 +1,7 @@
-import { useMutation } from '@tanstack/react-query'
 import { useCallback } from 'react'
+
+import { useMutation } from '@tanstack/react-query'
+
 import { Expense, useExpenses } from './expenseServices'
 
 type PatchExpenseProps = {
@@ -35,4 +37,3 @@ export const usePatchExpense = ({ onSuccess, onSettled }: PatchExpenseProps) => 
 		onSettled: onSettled,
 	})
 }
-

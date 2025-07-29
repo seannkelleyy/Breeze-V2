@@ -1,5 +1,7 @@
-import { useMutation } from '@tanstack/react-query'
 import { useCallback } from 'react'
+
+import { useMutation } from '@tanstack/react-query'
+
 import { Income, useIncomes } from './incomeServices'
 
 type PatchIncomeProps = {
@@ -33,4 +35,3 @@ export const usePatchIncome = ({ onSuccess, onSettled }: PatchIncomeProps) => {
 		onSettled: onSettled,
 	})
 }
-

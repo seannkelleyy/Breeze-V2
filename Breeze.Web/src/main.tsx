@@ -1,11 +1,12 @@
 import { StrictMode } from 'react'
-import './index.css'
-import { AppRoutes } from './config/routing/AppRoutes'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ThemeProvider } from './components/theme/ThemeProvider'
-import ReactDOM from 'react-dom/client'
+
 import { ClerkProvider } from '@clerk/clerk-react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import ReactDOM from 'react-dom/client'
+
+import { AppRoutes } from './config/routing/AppRoutes'
 import './index.css'
+import { ThemeProvider } from './services/providers/ThemeProvider'
 
 const queryClient = new QueryClient()
 
@@ -18,16 +19,11 @@ if (!PUBLISHABLE_KEY) {
 ReactDOM.createRoot(document.getElementById('root')!).render(
 	<StrictMode>
 		<QueryClientProvider client={queryClient}>
-			<ThemeProvider defaultTheme='system'>
-				<ClerkProvider
-					publishableKey={PUBLISHABLE_KEY}
-					afterSignOutUrl='/login'
-					signInForceRedirectUrl={'/'}
-				>
+			<ThemeProvider defaultTheme="system">
+				<ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/login" signInForceRedirectUrl={'/'}>
 					<AppRoutes />
 				</ClerkProvider>
 			</ThemeProvider>
 		</QueryClientProvider>
-	</StrictMode>,
+	</StrictMode>
 )
-

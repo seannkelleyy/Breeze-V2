@@ -1,8 +1,9 @@
-import { useQuery } from '@tanstack/react-query'
-
 import { useCallback } from 'react'
-import { Budget, useBudgets } from './budgetServices'
+
+import { useQuery } from '@tanstack/react-query'
 import { Dayjs } from 'dayjs'
+
+import { Budget, useBudgets } from './budgetServices'
 
 type FetchBudgetProps = {
 	date: Dayjs
@@ -28,4 +29,3 @@ export const useFetchBudget = ({ date }: FetchBudgetProps) => {
 		retry: 3,
 	})
 }
-

@@ -1,5 +1,7 @@
-import { useMutation } from '@tanstack/react-query'
 import { useCallback } from 'react'
+
+import { useMutation } from '@tanstack/react-query'
+
 import { Income, useIncomes } from './incomeServices'
 
 type DeleteIncomeProps = {
@@ -33,4 +35,3 @@ export const useDeleteIncome = ({ onSuccess, onSettled }: DeleteIncomeProps) => 
 		onSettled: onSettled,
 	})
 }
-

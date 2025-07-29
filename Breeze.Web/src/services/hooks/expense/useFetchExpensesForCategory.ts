@@ -1,7 +1,9 @@
-import { useQuery } from '@tanstack/react-query'
 import { useCallback } from 'react'
-import { Expense, useExpenses } from './expenseServices'
+
+import { useQuery } from '@tanstack/react-query'
+
 import { Category } from '../category/categoryServices'
+import { Expense, useExpenses } from './expenseServices'
 
 type FetchExpensesForCategoryProps = {
 	category: Category
@@ -27,4 +29,3 @@ export const useFetchExpensesForCategory = ({ category }: FetchExpensesForCatego
 		retry: 3,
 	})
 }
-

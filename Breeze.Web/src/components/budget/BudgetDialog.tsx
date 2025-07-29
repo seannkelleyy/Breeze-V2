@@ -1,17 +1,20 @@
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
+
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { Button } from '../../components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog'
-import { Form } from '../../components/ui/form'
-import { useDeleteCategory } from '../../services/hooks/category/useDeleteCategory'
-import { usePatchCategory } from '../../services/hooks/category/usePatchCategory'
-import { usePostCategory } from '../../services/hooks/category/usePostCategory'
-import { useDeleteIncome } from '../../services/hooks/income/useDeleteIncome'
-import { usePatchIncome } from '../../services/hooks/income/usePatchIncome'
-import { usePostIncome } from '../../services/hooks/income/usePostIncome'
-import { useBudgetContext } from '../../services/providers/BudgetProvider'
+
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Form } from '@/components/ui/form'
+import { useDeleteCategory } from '@/services/hooks/category/useDeleteCategory'
+import { usePatchCategory } from '@/services/hooks/category/usePatchCategory'
+import { usePostCategory } from '@/services/hooks/category/usePostCategory'
+import { useDeleteIncome } from '@/services/hooks/income/useDeleteIncome'
+import { usePatchIncome } from '@/services/hooks/income/usePatchIncome'
+import { usePostIncome } from '@/services/hooks/income/usePostIncome'
+import { useBudgetContext } from '@/services/providers/BudgetProvider'
+
 import { BudgetExpenseItem } from './BudgetExpenseItem'
 import { BudgetIncomeItem } from './BudgetIncomeItem'
 
@@ -26,7 +29,7 @@ const formSchema = z.object({
 			date: z.string().refine((val) => /^\d{4}-\d{2}-\d{2}$/.test(val), {
 				message: 'Invalid date format',
 			}),
-		}),
+		})
 	),
 	categories: z.array(
 		z.object({
@@ -36,7 +39,7 @@ const formSchema = z.object({
 			budgetId: z.number(),
 			currentSpend: z.number(),
 			allocation: z.coerce.number().min(0, 'Allocation must be non-negative'),
-		}),
+		})
 	),
 })
 
@@ -137,7 +140,7 @@ export const BudgetDialog = () => {
 			if (existingIncome) {
 				patchIncomeMutation.mutate({ income: income })
 			} else {
-				postIncomeMutation.mutate({ income: income })
+				postIncomeMutation.mutate({ budgetId: budget.id, income: income })
 			}
 		})
 
@@ -171,38 +174,32 @@ export const BudgetDialog = () => {
 	}, [open, incomes, categories, budget, form])
 
 	return (
-		<Dialog
-			open={open}
-			onOpenChange={setOpen}
-		>
+		<Dialog open={open} onOpenChange={setOpen}>
 			<Button onClick={() => setOpen(true)}>Edit Budget</Button>
-			<DialogContent className='max-h-[80vh] overflow-y-auto'>
+			<DialogContent className="max-h-[80vh] overflow-y-auto">
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)}>
 						<DialogHeader>
-							<DialogTitle className='text-2xl'>Edit Budget</DialogTitle>
+							<DialogTitle className="text-2xl">Edit Budget</DialogTitle>
 							<DialogDescription>Add and edit your estimated incomes and expenses.</DialogDescription>
-							<h1 className='text-lg font-bold'>
+							<h1 className="text-lg font-bold">
 								Total Budget: $
-								{<span className={totalIncome - totalExpenses >= 0 ? 'p-1 rounded-sm bg-success' : ' p-1 rounded-sm bg-destructive'}>{totalIncome - totalExpenses}</span>}
+								{
+									<span className={totalIncome - totalExpenses >= 0 ? 'p-1 rounded-sm bg-success' : ' p-1 rounded-sm bg-destructive'}>
+										{totalIncome - totalExpenses}
+									</span>
+								}
 							</h1>
 						</DialogHeader>
-						<section
-							title='Budget Incomes'
-							className='grid gap-2 py-4 mt-2'
-						>
-							<h2 className='text-xl font-bold'>Estimated Incomes</h2>
-							<h3 className='font-bold'>Total Income: ${totalIncome}</h3>
+						<section title="Budget Incomes" className="grid gap-2 py-4 mt-2">
+							<h2 className="text-xl font-bold">Estimated Incomes</h2>
+							<h3 className="font-bold">Total Income: ${totalIncome}</h3>
 							{form.watch('incomes').map((_, index) => (
-								<BudgetIncomeItem
-									index={index}
-									form={form}
-									deleteIncome={handleDeleteIncome}
-								/>
+								<BudgetIncomeItem index={index} form={form} deleteIncome={handleDeleteIncome} />
 							))}
 
 							<Button
-								type='button'
+								type="button"
 								onClick={() => {
 									const updatedIncomes = [
 										...form.getValues().incomes,
@@ -214,23 +211,19 @@ export const BudgetDialog = () => {
 								Add Income
 							</Button>
 						</section>
-						<section
-							title='Budget Expenses'
-							className='grid gap-2 py-4 mt-2'
-						>
-							<h2 className='text-xl font-bold'>Estimated Expenses</h2>
-							<h3 className='font-bold'>Total Expenses: ${totalExpenses}</h3>
+						<section title="Budget Expenses" className="grid gap-2 py-4 mt-2">
+							<h2 className="text-xl font-bold">Estimated Expenses</h2>
+							<h3 className="font-bold">Total Expenses: ${totalExpenses}</h3>
 							{form.watch('categories').map((_, index) => (
-								<BudgetExpenseItem
-									index={index}
-									form={form}
-									deleteCategory={handleDeleteCategory}
-								/>
+								<BudgetExpenseItem index={index} form={form} deleteCategory={handleDeleteCategory} />
 							))}
 							<Button
-								type='button'
+								type="button"
 								onClick={() => {
-									const updatedCategories = [...form.getValues().categories, { id: -1, userId: '', name: '', budgetId: budget.id, currentSpend: 0, allocation: 0 }]
+									const updatedCategories = [
+										...form.getValues().categories,
+										{ id: -1, userId: '', name: '', budgetId: budget.id, currentSpend: 0, allocation: 0 },
+									]
 									form.setValue('categories', updatedCategories, { shouldValidate: false })
 								}}
 							>
@@ -238,7 +231,7 @@ export const BudgetDialog = () => {
 							</Button>
 						</section>
 						<DialogFooter>
-							<Button type='submit'>Save Budget</Button>
+							<Button type="submit">Save Budget</Button>
 						</DialogFooter>
 					</form>
 				</Form>
@@ -246,4 +239,3 @@ export const BudgetDialog = () => {
 		</Dialog>
 	)
 }
-
