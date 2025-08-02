@@ -58,14 +58,14 @@ export const CreateExpenseDialog = () => {
 	return (
 		<Dialog open={open} onOpenChange={handleOpenChange}>
 			<Button onClick={() => setOpen(true)}>Add Expense</Button>
-			<DialogContent className="sm:max-w-[425px]">
+			<DialogContent className="max-w-[95%] w-fit rounded-md">
 				<DialogHeader>
 					<DialogTitle>Create Expense</DialogTitle>
 					<DialogDescription>Add a new expense entry. Click save when you're done.</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-						<FormInputField form={form} name="name" label="Name" />
+						<FormInputField form={form} name="name" label="Name" placeholder="e.g., Groceries" />
 						<FormSelectField
 							form={form}
 							name="categoryId"
@@ -78,7 +78,7 @@ export const CreateExpenseDialog = () => {
 								})) ?? []
 							}
 						/>
-						<FormInputField form={form} name="amount" label="Amount" type="number" />
+						<FormInputField form={form} name="amount" label="Amount" type="number" placeholder="0.00" />
 						<FormInputField form={form} name="date" label="Date" type="date" />
 						<DialogFooter>
 							<Button type="submit" disabled={!form.formState.isValid || form.formState.isSubmitting}>

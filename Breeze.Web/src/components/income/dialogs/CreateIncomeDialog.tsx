@@ -59,7 +59,7 @@ export const CreateIncomeDialog = () => {
 	return (
 		<Dialog open={open} onOpenChange={handleOpenChange}>
 			<Button onClick={() => setOpen(true)}>Add Income</Button>
-			<DialogContent className="sm:max-w-[425px]">
+			<DialogContent className="max-w-[95%] w-fit rounded-md">
 				<DialogHeader>
 					<DialogTitle>Create Income</DialogTitle>
 					<DialogDescription>Add a new income entry.</DialogDescription>
@@ -67,10 +67,9 @@ export const CreateIncomeDialog = () => {
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
 						<FormInputField form={form} name="name" label="Name" placeholder="e.g., Paycheck" />
-						<FormInputField form={form} name="amount" label="Amount" type="number" />
-						<FormInputField form={form} name="date" label="Date" type="date" />
+						<FormInputField form={form} name="amount" label="Amount" type="number" placeholder="0.00" />
+						<FormInputField form={form} name="date" label="Date" type="date" placeholder="YYYY-MM-DD" />
 						<DialogFooter>
-							<p>{JSON.stringify(form.getValues())}</p>
 							<Button type="submit" disabled={!form.formState.isValid || form.formState.isSubmitting}>
 								{form.formState.isSubmitting ? 'Creating...' : 'Create Income'}
 							</Button>

@@ -72,7 +72,7 @@ export const EditIncomeDialog = ({ existingIncome, children }: EditIncomeDialogP
 					{children}
 				</div>
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-[425px]">
+			<DialogContent className="max-w-[95%] w-fit rounded-md">
 				<DialogHeader>
 					<DialogTitle>Edit Income</DialogTitle>
 					<DialogDescription>Make changes to your income here.</DialogDescription>
@@ -80,8 +80,8 @@ export const EditIncomeDialog = ({ existingIncome, children }: EditIncomeDialogP
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
 						<FormInputField form={form} name="name" label="Name" placeholder="e.g., Paycheck" />
-						<FormInputField form={form} name="amount" label="Amount" type="number" />
-						<FormInputField form={form} name="date" label="Date" type="date" />
+						<FormInputField form={form} name="amount" label="Amount" type="number" placeholder="0.00" />
+						<FormInputField form={form} name="date" label="Date" type="date" placeholder="YYYY-MM-DD" />
 						<DialogFooter className="flex items-center justify-between pt-4">
 							<DeleteConfirmationDialog
 								onDelete={() => deleteMutation.mutate({ income: existingIncome })}

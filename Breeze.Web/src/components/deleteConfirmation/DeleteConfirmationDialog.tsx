@@ -26,7 +26,7 @@ export const DeleteConfirmationDialog = ({ itemType, additionalText, onDelete }:
 			<DialogTrigger asChild className="hover:cursor-pointer bg-destructive w-8 h-8 p-1 rounded-md flex items-center justify-center">
 				<Trash />
 			</DialogTrigger>
-			<DialogContent>
+			<DialogContent className="max-w-[95%] w-fit rounded-md">
 				<DialogHeader>
 					<DialogTitle>Are you sure?</DialogTitle>
 					<DialogDescription>
@@ -34,11 +34,11 @@ export const DeleteConfirmationDialog = ({ itemType, additionalText, onDelete }:
 						{additionalText && <span className="block text-center font-bold text-destructive mt-2">{additionalText}</span>}
 					</DialogDescription>
 				</DialogHeader>
-				<DialogFooter>
+				<DialogFooter className="flex flex-row gap-2 items-center justify-center ">
+					<Button onClick={() => onOpenChange(false)}>Cancel</Button>
 					<Button variant="destructive" onClick={onDelete} className="hover:cursor-pointer">
 						Delete
 					</Button>
-					<Button onClick={() => onOpenChange(false)}>Cancel</Button>
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>

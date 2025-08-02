@@ -210,7 +210,7 @@ export const BudgetDialog = () => {
 	return (
 		<Dialog open={open} onOpenChange={handleOpenChange}>
 			<Button onClick={() => setOpen(true)}>Edit Budget</Button>
-			<DialogContent className="max-h-[80vh] overflow-y-auto">
+			<DialogContent className="max-h-[80vh] overflow-y-auto max-w-[95%] w-fit rounded-md">
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)}>
 						<DialogHeader>
