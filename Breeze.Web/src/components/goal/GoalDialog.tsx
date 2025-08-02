@@ -58,16 +58,16 @@ export const GoalDialog = ({ goal, refetchGoals }: GoalDialogProps) => {
 	})
 
 	const onSubmit = (values: z.infer<typeof formSchema>) => {
+		if (!user) return null
 		if (isEditing) {
 			const goalToUpdate = {
 				...goal,
 				description: values.description,
 				isCompleted: values.isCompleted ?? false,
 			}
-			updateGoalMutation.mutate({ userId: user?.id ?? '', goal: goalToUpdate })
+			updateGoalMutation.mutate({ goal: goalToUpdate })
 		} else {
 			postGoalMutation.mutate({
-				userId: user?.id ?? '',
 				goal: {
 					userId: user?.id ?? '',
 					description: values.description,
@@ -78,7 +78,6 @@ export const GoalDialog = ({ goal, refetchGoals }: GoalDialogProps) => {
 	}
 
 	//TODO: Create delete goal function instead declaring it in the button
-
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			{isEditing ? (
@@ -117,7 +116,7 @@ export const GoalDialog = ({ goal, refetchGoals }: GoalDialogProps) => {
 							{isEditing && (
 								<DeleteConfirmationDialog
 									itemType="goal"
-									onDelete={() => deleteMutation.mutate({ userId: user?.id ?? '', goalId: goal!.id! })}
+									onDelete={() => deleteMutation.mutate({ goal: goal })}
 									additionalText={<p className="text-center">Goal: {goal!.description}</p>}
 								/>
 							)}
