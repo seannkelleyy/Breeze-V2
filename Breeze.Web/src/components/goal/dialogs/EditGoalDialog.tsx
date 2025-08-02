@@ -2,7 +2,6 @@ import { useState } from 'react'
 
 import { useUser } from '@clerk/clerk-react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Pencil } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 
 import { DeleteConfirmationDialog } from '@/components/deleteConfirmation/DeleteConfirmationDialog'
@@ -17,9 +16,10 @@ import { usePatchGoal } from '@/services/hooks/goal/usePatchGoal'
 type EditGoalDialogProps = {
 	existingGoal: Goal
 	refetchGoals: () => void
+	children?: React.ReactNode
 }
 
-export const EditGoalDialog = ({ existingGoal, refetchGoals }: EditGoalDialogProps) => {
+export const EditGoalDialog = ({ existingGoal, refetchGoals, children }: EditGoalDialogProps) => {
 	const { user } = useUser()
 	const [open, setOpen] = useState(false)
 
@@ -54,8 +54,10 @@ export const EditGoalDialog = ({ existingGoal, refetchGoals }: EditGoalDialogPro
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogTrigger onClick={() => setOpen(true)}>
-				<Pencil />
+			<DialogTrigger asChild>
+				<div onClick={() => setOpen(true)} className="hover:cursor-pointer">
+					{children}
+				</div>
 			</DialogTrigger>
 			<DialogContent className="max-w-[95%] w-fit rounded-md">
 				<Form {...form}>

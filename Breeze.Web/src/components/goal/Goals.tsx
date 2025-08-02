@@ -4,7 +4,8 @@ import { Card } from '@/components/ui/card'
 import { useFetchGoals } from '@/services/hooks/goal/useFetchGoals'
 
 import { Loading } from '../loading/Loading'
-import { GoalDialog } from './GoalDialog'
+import { CreateGoalDialog } from './dialogs/CreateGoalDialog'
+import { EditGoalDialog } from './dialogs/EditGoalDialog'
 
 export const Goals = () => {
 	const { user } = useUser()
@@ -20,10 +21,11 @@ export const Goals = () => {
 			<ul className="space-y-2">
 				{goals ? (
 					goals.map((goal) => (
-						<li className="flex gap-16 items-center justify-between mx-auto" key={goal.id}>
-							<p className="text-xl">{goal.isCompleted ? <del>{goal.description}</del> : goal.description}</p>
-							<GoalDialog goal={goal} refetchGoals={refetch} />
-						</li>
+						<EditGoalDialog existingGoal={goal} refetchGoals={refetch}>
+							<li className="flex gap-16 items-center justify-between mx-auto hover:bg-accent p-2 rounded-md" key={goal.id}>
+								<p className="text-xl">{goal.isCompleted ? <del>{goal.description}</del> : goal.description}</p>
+							</li>
+						</EditGoalDialog>
 					))
 				) : isLoading ? (
 					<li className="text-center">
@@ -36,7 +38,7 @@ export const Goals = () => {
 					<li className="text-center">No goals found</li>
 				)}
 			</ul>
-			<GoalDialog refetchGoals={refetch} />
+			<CreateGoalDialog refetchGoals={refetch} />
 		</Card>
 	)
 }
