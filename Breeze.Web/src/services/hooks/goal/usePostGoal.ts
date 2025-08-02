@@ -16,7 +16,6 @@ type PostGoalProps = {
  */
 
 type PostGoalMutationProps = {
-	userId: string
 	goal: Goal
 }
 
@@ -29,7 +28,7 @@ type PostGoalMutationProps = {
 export const usePostGoal = ({ onSuccess, onSettled }: PostGoalProps) => {
 	const { postGoal } = useGoals()
 
-	const mutationFn = useCallback(({ userId, goal }: PostGoalMutationProps) => postGoal(userId, goal), [postGoal])
+	const mutationFn = useCallback(({ goal }: PostGoalMutationProps) => postGoal(goal), [postGoal])
 
 	return useMutation({
 		mutationFn,

@@ -1,0 +1,30 @@
+import { UseFormReturn } from 'react-hook-form'
+
+import { DeleteConfirmationDialog } from '@/components/deleteConfirmation/DeleteConfirmationDialog'
+import { FormInputField } from '@/components/form/FormInputField'
+import { BudgetFormData } from '@/services/hooks/budget/budgetServices'
+
+type BudgetExpenseItemProps = {
+	index: number
+	form: UseFormReturn<BudgetFormData>
+	deleteCategory: (index: number) => void
+}
+
+export function BudgetExpenseItem({ index, form, deleteCategory }: BudgetExpenseItemProps) {
+	return (
+		<section className="flex gap-2 items-center">
+			<FormInputField form={form} name={`categories.${index}.name`} label="Name" placeholder="Groceries" />
+			<FormInputField form={form} name={`categories.${index}.allocation`} label="Allocation" type="number" placeholder="0" />
+			<DeleteConfirmationDialog
+				itemType="expense category"
+				additionalText={
+					<>
+						<p>Deleting this category will remove all expenses associated with it.</p>
+						<p>Are you sure you want to delete this category?</p>
+					</>
+				}
+				onDelete={() => deleteCategory(index)}
+			/>
+		</section>
+	)
+}

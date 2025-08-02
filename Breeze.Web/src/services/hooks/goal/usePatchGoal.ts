@@ -16,7 +16,6 @@ type PatchGoalProps = {
  */
 
 type PatchGoalMutationProps = {
-	userId: string
 	goal: Goal
 }
 
@@ -29,7 +28,7 @@ type PatchGoalMutationProps = {
 export const usePatchGoal = ({ onSuccess, onSettled }: PatchGoalProps) => {
 	const { patchGoal } = useGoals()
 
-	const mutationFn = useCallback(({ userId, goal }: PatchGoalMutationProps) => patchGoal(userId, goal), [patchGoal])
+	const mutationFn = useCallback(({ goal }: PatchGoalMutationProps) => patchGoal(goal), [patchGoal])
 
 	return useMutation({
 		mutationFn,

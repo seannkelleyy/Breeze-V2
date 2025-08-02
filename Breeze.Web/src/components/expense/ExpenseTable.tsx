@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React from 'react'
 
 import {
 	ColumnDef,
@@ -175,19 +175,7 @@ export function ExpensesTable() {
 						))}
 					</TableHeader>
 					<TableBody>
-						{status === 'loading' ? (
-							<TableRow>
-								<TableCell colSpan={columns.length} className="text-center">
-									Loading...
-								</TableCell>
-							</TableRow>
-						) : status === 'error' ? (
-							<TableRow>
-								<TableCell colSpan={columns.length} className="text-center">
-									Error loading expenses. Please try again.
-								</TableCell>
-							</TableRow>
-						) : expenses?.length ? (
+						{expenses?.length ? (
 							table.getRowModel().rows.map((row) => (
 								<TableRow key={row.id}>
 									{row.getVisibleCells().map((cell) => (

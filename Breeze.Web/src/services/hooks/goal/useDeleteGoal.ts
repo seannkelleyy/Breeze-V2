@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 
 import { useMutation } from '@tanstack/react-query'
 
-import { useGoals } from './goalServices'
+import { Goal, useGoals } from './goalServices'
 
 type DeleteGoalProps = {
 	onSuccess?: () => void
@@ -16,8 +16,7 @@ type DeleteGoalProps = {
  */
 
 type DeleteGoalMutationProps = {
-	userId: string
-	goalId: number
+	goal: Goal
 }
 
 /**
@@ -29,7 +28,7 @@ type DeleteGoalMutationProps = {
 export const useDeleteGoal = ({ onSuccess, onSettled }: DeleteGoalProps) => {
 	const { deleteGoal } = useGoals()
 
-	const mutationFn = useCallback(({ userId, goalId }: DeleteGoalMutationProps) => deleteGoal(userId, goalId), [deleteGoal])
+	const mutationFn = useCallback(({ goal }: DeleteGoalMutationProps) => deleteGoal(goal), [deleteGoal])
 
 	return useMutation({
 		mutationFn,

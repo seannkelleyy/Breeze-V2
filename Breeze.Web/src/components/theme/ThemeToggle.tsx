@@ -17,16 +17,16 @@ export function ThemeToggle() {
 					<span className="sr-only">Toggle theme</span>
 				</Button>
 			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end" className="bg-background p-2 border border-border rounded-md">
-				<DropdownMenuItem className="hover:cursor-pointer hover:bg-border rounded-md p-1" onClick={() => setTheme('light')}>
+			<DropdownMenuContent align="end" className="bg-background border border-border rounded-md">
+				<DropdownMenuItem className="hover:cursor-pointer hover:bg-border rounded-md p-1 my-1" onClick={() => setTheme('light')}>
 					Light
 				</DropdownMenuItem>
 				<DropdownMenuSeparator className="h-[1px] bg-border my-.5" />
-				<DropdownMenuItem className="hover:cursor-pointer hover:bg-border rounded-md p-1" onClick={() => setTheme('dark')}>
+				<DropdownMenuItem className="hover:cursor-pointer hover:bg-border rounded-md p-1 my-1" onClick={() => setTheme('dark')}>
 					Dark
 				</DropdownMenuItem>
 				<DropdownMenuSeparator className="h-[1px] bg-border my-.5" />
-				<DropdownMenuItem className="hover:cursor-pointer hover:bg-border rounded-md p-1" onClick={() => setTheme('system')}>
+				<DropdownMenuItem className="hover:cursor-pointer hover:bg-border rounded-md p-1 my-1" onClick={() => setTheme('system')}>
 					System
 				</DropdownMenuItem>
 			</DropdownMenuContent>

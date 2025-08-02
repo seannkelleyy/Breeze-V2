@@ -1,7 +1,9 @@
+import z from 'zod'
+
 import { Category } from '../category/categoryServices'
 import useHttp from '../useHttp'
 
-export type Expense = {
+export interface Expense {
 	id?: number
 	userId: string
 	categoryId: number
@@ -9,6 +11,15 @@ export type Expense = {
 	amount: number
 	date: string
 }
+
+export const expenseFormSchema = z.object({
+	id: z.number().optional(),
+	userId: z.string().min(1, 'User ID is required'),
+	name: z.string().min(1, { message: 'Name is required' }),
+	categoryId: z.number().min(1, { message: 'Category is required' }),
+	amount: z.number().min(0.01, 'Amount must be greater than 0'),
+	date: z.string().refine((val) => /^\d{4}-\d{2}-\d{2}$/.test(val), { message: 'Invalid date format' }),
+})
 
 /**
  * A hook for fetching expense data. This should only be used when creating new hooks with ReactQuery.

@@ -90,7 +90,7 @@ export const GoalDialog = ({ goal, refetchGoals }: GoalDialogProps) => {
 					Create Goal
 				</Button>
 			)}
-			<DialogContent>
+			<DialogContent className="max-w-[95%] w-fit rounded-md">
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
 						<DialogHeader>
@@ -106,7 +106,7 @@ export const GoalDialog = ({ goal, refetchGoals }: GoalDialogProps) => {
 							name="description"
 							render={({ field }) => (
 								<FormItem className="grid grid-cols-4 items-center gap-2">
-									<FormLabel className="text-right">Goal Description</FormLabel>
+									<FormLabel className="text-center">Goal Description</FormLabel>
 									<FormControl>
 										<Input id="description" type="text" {...field} className="col-span-3" />
 									</FormControl>

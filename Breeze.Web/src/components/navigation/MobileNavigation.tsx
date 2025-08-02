@@ -57,10 +57,10 @@ export const MobileNavigation = () => {
 							<Mail /> Email
 						</a>
 					</Button>
-					<AuthButton />
 				</MenubarContent>
 			</MenubarMenu>
 			<ThemeToggle />
+			<AuthButton />
 		</Menubar>
 	)
 }

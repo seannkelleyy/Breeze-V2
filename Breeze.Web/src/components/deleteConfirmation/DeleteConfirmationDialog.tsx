@@ -29,8 +29,10 @@ export const DeleteConfirmationDialog = ({ itemType, additionalText, onDelete }:
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>Are you sure?</DialogTitle>
-					<DialogDescription>Are you sure you want to delete this {itemType}? This action cannot be undone.</DialogDescription>
-					{additionalText && <DialogDescription className="text-center font-bold text-destructive">{additionalText}</DialogDescription>}
+					<DialogDescription>
+						Are you sure you want to delete this {itemType}? This action cannot be undone.
+						{additionalText && <span className="block text-center font-bold text-destructive mt-2">{additionalText}</span>}
+					</DialogDescription>
 				</DialogHeader>
 				<DialogFooter>
 					<Button variant="destructive" onClick={onDelete} className="hover:cursor-pointer">

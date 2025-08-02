@@ -5,48 +5,47 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 
 import { FormInputField } from '@/components/form/FormInputField'
+import { FormSelectField } from '@/components/form/FormSelectField'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Form } from '@/components/ui/form'
-import { Income, incomeFormSchema } from '@/services/hooks/income/incomeServices'
-import { usePostIncome } from '@/services/hooks/income/usePostIncome'
+import { Expense, expenseFormSchema } from '@/services/hooks/expense/expenseServices'
+import { usePostExpense } from '@/services/hooks/expense/usePostExpense'
 import { useBudgetContext } from '@/services/providers/BudgetProvider'
 
-export const CreateIncomeDialog = () => {
+export const CreateExpenseDialog = () => {
 	const [open, setOpen] = useState(false)
 	const { user } = useUser()
-	const { budget, refetchIncomes, refetchBudget } = useBudgetContext()
+	const { budget, categories, refetchCategories, refetchBudget, refetchExpenses } = useBudgetContext()
 
-	const form = useForm<Income>({
-		resolver: zodResolver(incomeFormSchema),
+	const form = useForm<Expense>({
+		resolver: zodResolver(expenseFormSchema),
 		defaultValues: {
 			userId: user?.id ?? '',
-			budgetId: budget?.id ?? -1,
+			categoryId: categories?.[0]?.id ?? 1,
 			name: '',
 			amount: 0,
 			date: new Date().toISOString().split('T')[0],
 		},
 	})
 
-	const postMutation = usePostIncome({
+	const postMutation = usePostExpense({
 		onSettled: () => {
-			refetchIncomes()
 			refetchBudget()
+			refetchCategories()
+			refetchExpenses()
 			setOpen(false)
 			form.reset()
 		},
 	})
 
-	const onSubmit = (values: Income) => {
+	const onSubmit = (values: Expense) => {
 		if (!user?.id || !budget?.id) return
-
-		console.log('Creating income:', values)
 		postMutation.mutate({
 			budgetId: budget.id,
-			income: {
+			expense: {
 				...values,
 				userId: user.id,
-				budgetId: budget.id,
 			},
 		})
 	}
@@ -58,21 +57,32 @@ export const CreateIncomeDialog = () => {
 
 	return (
 		<Dialog open={open} onOpenChange={handleOpenChange}>
-			<Button onClick={() => setOpen(true)}>Add Income</Button>
+			<Button onClick={() => setOpen(true)}>Add Expense</Button>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
-					<DialogTitle>Create Income</DialogTitle>
-					<DialogDescription>Add a new income entry.</DialogDescription>
+					<DialogTitle>Create Expense</DialogTitle>
+					<DialogDescription>Add a new expense entry. Click save when you're done.</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-						<FormInputField form={form} name="name" label="Name" placeholder="e.g., Paycheck" />
+						<FormInputField form={form} name="name" label="Name" />
+						<FormSelectField
+							form={form}
+							name="categoryId"
+							label="Category"
+							placeholder="Select a category"
+							options={
+								categories.map((c) => ({
+									value: String(c.id),
+									label: c.name,
+								})) ?? []
+							}
+						/>
 						<FormInputField form={form} name="amount" label="Amount" type="number" />
 						<FormInputField form={form} name="date" label="Date" type="date" />
 						<DialogFooter>
-							<p>{JSON.stringify(form.getValues())}</p>
 							<Button type="submit" disabled={!form.formState.isValid || form.formState.isSubmitting}>
-								{form.formState.isSubmitting ? 'Creating...' : 'Create Income'}
+								{form.formState.isSubmitting ? 'Creating...' : 'Create Expense'}
 							</Button>
 						</DialogFooter>
 					</form>

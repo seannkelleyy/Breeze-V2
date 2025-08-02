@@ -13,7 +13,7 @@ export const Goals = () => {
 	if (goals) goals.sort((a, b) => (a.isCompleted === b.isCompleted ? 0 : a.isCompleted ? 1 : -1))
 
 	return (
-		<Card className="space-y-4 flex flex-col items-evenly p-4 my-4 md:min-w-[400px]">
+		<Card className="space-y-4 flex flex-col items-evenly p-4 my-4 md:min-w-[350px]	max-w-[95%]">
 			<div className="flex justify-between items-center">
 				<h1 className="text-2xl font-bold">Goals</h1>
 			</div>
