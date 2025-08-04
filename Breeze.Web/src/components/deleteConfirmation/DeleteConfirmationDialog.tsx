@@ -2,8 +2,8 @@ import { useState } from 'react'
 
 import { Trash } from 'lucide-react'
 
+import { BreezeDialog } from '../dialog/BreezeDialog'
 import { Button } from '../ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog'
 
 type DeleteConfirmationDialogProps = {
 	itemType: string
@@ -11,36 +11,43 @@ type DeleteConfirmationDialogProps = {
 	onDelete: () => void
 }
 
-/**  A dialog that prompts the user to confirm deletion of an item.
- *  @param itemType - The type of item being deleted.
- *  @param additionalText - Additional text to display in the dialog.
- *  @param onDelete - The function to call when the user confirms deletion.
- *
- *  @returns The delete confirmation dialog.
+/**
+ * A reusable dialog that prompts the user to confirm deletion of an item.
  */
 export const DeleteConfirmationDialog = ({ itemType, additionalText, onDelete }: DeleteConfirmationDialogProps) => {
-	const [open, onOpenChange] = useState(false)
+	const [open, setOpen] = useState(false)
+
+	const dialogTrigger = (
+		<button className="hover:cursor-pointer bg-destructive w-8 h-8 p-1 rounded-md flex items-center justify-center" onClick={() => setOpen(true)}>
+			<span className="sr-only">Delete</span>
+			<Trash />
+		</button>
+	)
+
+	const dialogDescription = (
+		<>
+			Are you sure you want to delete this {itemType}? This action cannot be undone.
+			{additionalText && <span className="block text-center font-bold text-destructive mt-2">{additionalText}</span>}
+		</>
+	)
+
+	const footerActions = (
+		<div className="flex flex-row gap-2 items-center justify-center w-full">
+			<Button onClick={() => setOpen(false)}>Cancel</Button>
+			<Button variant="destructive" onClick={onDelete} className="hover:cursor-pointer">
+				Delete
+			</Button>
+		</div>
+	)
 
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogTrigger asChild className="hover:cursor-pointer bg-destructive w-8 h-8 p-1 rounded-md flex items-center justify-center">
-				<Trash />
-			</DialogTrigger>
-			<DialogContent className="max-w-[95%] w-fit rounded-md">
-				<DialogHeader>
-					<DialogTitle>Are you sure?</DialogTitle>
-					<DialogDescription>
-						Are you sure you want to delete this {itemType}? This action cannot be undone.
-						{additionalText && <span className="block text-center font-bold text-destructive mt-2">{additionalText}</span>}
-					</DialogDescription>
-				</DialogHeader>
-				<DialogFooter className="flex flex-row gap-2 items-center justify-center ">
-					<Button onClick={() => onOpenChange(false)}>Cancel</Button>
-					<Button variant="destructive" onClick={onDelete} className="hover:cursor-pointer">
-						Delete
-					</Button>
-				</DialogFooter>
-			</DialogContent>
-		</Dialog>
+		<BreezeDialog
+			open={open}
+			onOpenChange={setOpen}
+			dialogTrigger={dialogTrigger}
+			title="Are you sure?"
+			description={dialogDescription}
+			footerActions={footerActions}
+		/>
 	)
 }

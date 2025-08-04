@@ -17,6 +17,7 @@ export function BudgetIncomeItem({ index, form, deleteIncome }: BudgetIncomeItem
 			<FormInputField form={form} name={`incomes.${index}.amount`} label="Amount" type="number" placeholder="0" />
 			<FormInputField form={form} name={`incomes.${index}.date`} label="Date" type="date" />
 			<DeleteConfirmationDialog
+				key={form.getValues().incomes[index].id}
 				itemType="income"
 				additionalText={`You are about to delete the income: ${form.getValues().incomes[index].name}`}
 				onDelete={() => deleteIncome(index)}

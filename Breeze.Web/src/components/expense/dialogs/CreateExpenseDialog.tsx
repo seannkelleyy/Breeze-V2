@@ -1,22 +1,18 @@
-import { useState } from 'react'
-
 import { useUser } from '@clerk/clerk-react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 
+import { BreezeFormDialog } from '@/components/dialog/BreezeFormDialog'
 import { FormInputField } from '@/components/form/FormInputField'
 import { FormSelectField } from '@/components/form/FormSelectField'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Form } from '@/components/ui/form'
 import { Expense, expenseFormSchema } from '@/services/hooks/expense/expenseServices'
 import { usePostExpense } from '@/services/hooks/expense/usePostExpense'
 import { useBudgetContext } from '@/services/providers/BudgetProvider'
 
 export const CreateExpenseDialog = () => {
-	const [open, setOpen] = useState(false)
 	const { user } = useUser()
-	const { budget, categories, refetchCategories, refetchBudget, refetchExpenses } = useBudgetContext()
+	const { budget, categories, refetchBudget, refetchCategories, refetchExpenses } = useBudgetContext()
 
 	const form = useForm<Expense>({
 		resolver: zodResolver(expenseFormSchema),
@@ -34,8 +30,6 @@ export const CreateExpenseDialog = () => {
 			refetchBudget()
 			refetchCategories()
 			refetchExpenses()
-			setOpen(false)
-			form.reset()
 		},
 	})
 
@@ -50,44 +44,37 @@ export const CreateExpenseDialog = () => {
 		})
 	}
 
-	const handleOpenChange = (open: boolean) => {
-		setOpen(open)
-		form.reset()
-	}
+	const dialogTrigger = <Button>Add Expense</Button>
+
+	const inputFields = (
+		<>
+			<FormInputField form={form} name="name" label="Name" placeholder="e.g., Groceries" />
+			<FormSelectField
+				form={form}
+				name="categoryId"
+				label="Category"
+				placeholder="Select a category"
+				options={
+					categories?.map((c) => ({
+						value: String(c.id),
+						label: c.name,
+					})) ?? []
+				}
+			/>
+			<FormInputField form={form} name="amount" label="Amount" type="number" placeholder="0.00" />
+			<FormInputField form={form} name="date" label="Date" type="date" />
+		</>
+	)
 
 	return (
-		<Dialog open={open} onOpenChange={handleOpenChange}>
-			<Button onClick={() => setOpen(true)}>Add Expense</Button>
-			<DialogContent className="max-w-[95%] w-fit rounded-md">
-				<DialogHeader>
-					<DialogTitle>Create Expense</DialogTitle>
-					<DialogDescription>Add a new expense entry. Click save when you're done.</DialogDescription>
-				</DialogHeader>
-				<Form {...form}>
-					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-						<FormInputField form={form} name="name" label="Name" placeholder="e.g., Groceries" />
-						<FormSelectField
-							form={form}
-							name="categoryId"
-							label="Category"
-							placeholder="Select a category"
-							options={
-								categories.map((c) => ({
-									value: String(c.id),
-									label: c.name,
-								})) ?? []
-							}
-						/>
-						<FormInputField form={form} name="amount" label="Amount" type="number" placeholder="0.00" />
-						<FormInputField form={form} name="date" label="Date" type="date" />
-						<DialogFooter>
-							<Button type="submit" disabled={!form.formState.isValid || form.formState.isSubmitting}>
-								{form.formState.isSubmitting ? 'Creating...' : 'Create Expense'}
-							</Button>
-						</DialogFooter>
-					</form>
-				</Form>
-			</DialogContent>
-		</Dialog>
+		<BreezeFormDialog
+			dialogTrigger={dialogTrigger}
+			title="Create Expense"
+			itemType="Expense"
+			description="Add a new expense entry. Click save when you're done."
+			form={form}
+			onSubmit={onSubmit}
+			inputFields={inputFields}
+		/>
 	)
 }

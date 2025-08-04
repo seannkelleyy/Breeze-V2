@@ -49,15 +49,9 @@ export const EditGoalDialog = ({ existingGoal, refetchGoals, children }: EditGoa
 
 	const dialogTrigger = <div className="hover:cursor-pointer">{children}</div>
 
-	const inputFields = <FormInputField form={form} name="description" label="Goal Description" placeholder="Edit your goal" />
-
-	const footerActions = (
+	const inputFields = (
 		<>
-			<DeleteConfirmationDialog
-				itemType="goal"
-				onDelete={() => deleteMutation.mutate({ goal: existingGoal })}
-				additionalText={<p className="text-center">Goal: {existingGoal.description}</p>}
-			/>
+			<FormInputField form={form} name="description" label="Goal Description" placeholder="Edit your goal" />
 			<Button
 				type="button"
 				variant={form.watch('isCompleted') ? 'default' : 'outline'}
@@ -65,21 +59,26 @@ export const EditGoalDialog = ({ existingGoal, refetchGoals, children }: EditGoa
 			>
 				{form.watch('isCompleted') ? 'Mark as Incomplete' : 'Mark as Complete'}
 			</Button>
-			<Button type="submit" className="bg-green-400">
-				Save Changes
-			</Button>
 		</>
 	)
 
 	return (
 		<BreezeFormDialog
 			dialogTrigger={dialogTrigger}
+			itemType="Goal"
 			title="Edit Goal"
 			description="Make changes to your goal here. Click 'Save Changes' when you're done."
 			form={form}
 			onSubmit={onSubmit}
 			inputFields={inputFields}
-			footerActions={footerActions}
+			destructiveElements={
+				<DeleteConfirmationDialog
+					key={existingGoal.id}
+					itemType="goal"
+					onDelete={() => deleteMutation.mutate({ goal: existingGoal })}
+					additionalText={<p className="text-center">Goal: {existingGoal.description}</p>}
+				/>
+			}
 		/>
 	)
 }

@@ -16,6 +16,7 @@ export function BudgetExpenseItem({ index, form, deleteCategory }: BudgetExpense
 			<FormInputField form={form} name={`categories.${index}.name`} label="Name" placeholder="Groceries" />
 			<FormInputField form={form} name={`categories.${index}.allocation`} label="Allocation" type="number" placeholder="0" />
 			<DeleteConfirmationDialog
+				key={form.getValues().categories[index].id}
 				itemType="expense category"
 				additionalText={
 					<>

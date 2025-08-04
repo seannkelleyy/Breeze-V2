@@ -1,13 +1,13 @@
-import { useState } from 'react'
+import { ReactNode, useState } from 'react'
 
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 
 interface BreezeDialogProps {
-	dialogTrigger: React.ReactNode
+	dialogTrigger: ReactNode
 	title: string
-	description: string
-	children: React.ReactNode
-	footerActions?: React.ReactNode
+	description: string | ReactNode
+	footerActions?: ReactNode
+	children?: ReactNode
 	open?: boolean
 	onOpenChange?: (open: boolean) => void
 }
@@ -29,13 +29,13 @@ export const BreezeDialog = ({
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogTrigger asChild>{dialogTrigger}</DialogTrigger>
-			<DialogContent className="max-w-[95%] w-fit rounded-md">
+			<DialogContent className="max-w-[95%] md:max-w-[400px] rounded-md">
 				<DialogHeader>
 					<DialogTitle>{title}</DialogTitle>
 					<DialogDescription>{description}</DialogDescription>
 				</DialogHeader>
 				{children}
-				{footerActions && <DialogFooter className="flex flex-col gap-2 items-center">{footerActions}</DialogFooter>}
+				{footerActions && <DialogFooter>{footerActions}</DialogFooter>}
 			</DialogContent>
 		</Dialog>
 	)
