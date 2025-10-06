@@ -12,9 +12,9 @@ type BudgetExpenseItemProps = {
 
 export function BudgetExpenseItem({ index, form, deleteCategory }: BudgetExpenseItemProps) {
 	return (
-		<section className="flex gap-2 items-center">
-			<FormInputField form={form} name={`categories.${index}.name`} label="Name" placeholder="Groceries" />
-			<FormInputField form={form} name={`categories.${index}.allocation`} label="Allocation" type="number" placeholder="0" />
+		<section className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_auto] gap-2 items-start">
+			<FormInputField form={form} name={`categories.${index}.name`} label="Name" placeholder="Groceries" hideLabel />
+			<FormInputField form={form} name={`categories.${index}.allocation`} label="Allocation" type="number" placeholder="0" hideLabel />
 			<DeleteConfirmationDialog
 				key={form.getValues().categories[index].id}
 				itemType="expense category"

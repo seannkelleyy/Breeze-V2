@@ -13,13 +13,16 @@ type DeleteConfirmationDialogProps = {
 
 /**
  * A reusable dialog that prompts the user to confirm deletion of an item.
+ * @param {string} itemType - The type of item being deleted (e.g., "category", "income").
+ * @param {string | React.ReactNode} [additionalText] - Additional text to display in the dialog.
+ * @param {function} onDelete - Callback function to execute when the user confirms deletion.
+ * @returns {JSX.Element} The DeleteConfirmationDialog component.
  */
 export const DeleteConfirmationDialog = ({ itemType, additionalText, onDelete }: DeleteConfirmationDialogProps) => {
 	const [open, setOpen] = useState(false)
 
 	const dialogTrigger = (
 		<button className="hover:cursor-pointer bg-destructive w-8 h-8 p-1 rounded-md flex items-center justify-center" onClick={() => setOpen(true)}>
-			<span className="sr-only">Delete</span>
 			<Trash />
 		</button>
 	)

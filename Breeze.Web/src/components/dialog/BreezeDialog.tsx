@@ -29,7 +29,7 @@ export const BreezeDialog = ({
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogTrigger asChild>{dialogTrigger}</DialogTrigger>
-			<DialogContent className="max-w-[95%] md:max-w-[400px] rounded-md">
+			<DialogContent className="max-w-[95%] md:max-w-[400px] rounded-md max-h-[90vh] overflow-y-auto">
 				<DialogHeader>
 					<DialogTitle>{title}</DialogTitle>
 					<DialogDescription>{description}</DialogDescription>

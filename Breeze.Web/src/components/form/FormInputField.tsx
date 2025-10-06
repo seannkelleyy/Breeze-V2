@@ -9,16 +9,24 @@ type FormInputFieldProps<TFormValues extends FieldValues> = {
 	label: string
 	placeholder?: string
 	type?: string
+	hideLabel?: boolean
 }
 
-export function FormInputField<TFormValues extends FieldValues>({ form, name, label, placeholder, type = 'text' }: FormInputFieldProps<TFormValues>) {
+export function FormInputField<TFormValues extends FieldValues>({
+	form,
+	name,
+	label,
+	placeholder,
+	type = 'text',
+	hideLabel = false,
+}: FormInputFieldProps<TFormValues>) {
 	return (
 		<FormField
 			control={form.control}
 			name={name}
 			render={({ field }) => (
 				<FormItem>
-					<FormLabel>{label}</FormLabel>
+					{hideLabel ? <FormLabel className="sr-only">{label}</FormLabel> : <FormLabel>{label}</FormLabel>}
 					<FormControl>
 						<Input
 							type={type}

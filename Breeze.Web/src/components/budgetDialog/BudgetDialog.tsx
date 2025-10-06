@@ -120,6 +120,12 @@ export const BudgetDialog = () => {
 			<section className="grid gap-2 py-4 mt-2">
 				<h2 className="text-xl font-bold">Estimated Incomes</h2>
 				<h3 className="font-bold">Total Income: ${totalIncome}</h3>
+				<div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto] gap-2 text-sm text-muted-foreground">
+					<span>Name</span>
+					<span>Amount</span>
+					<span>Date</span>
+					<span className="text-right">Actions</span>
+				</div>
 				{form.watch('incomes').map((_, index) => (
 					<BudgetIncomeItem key={index} index={index} form={form} deleteIncome={handleDeleteIncome} />
 				))}
@@ -142,6 +148,11 @@ export const BudgetDialog = () => {
 			<section className="grid gap-2 py-4 mt-2">
 				<h2 className="text-xl font-bold">Estimated Expenses</h2>
 				<h3 className="font-bold">Total Expenses: ${totalExpenses}</h3>
+				<div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_auto] gap-2 text-sm text-muted-foreground">
+					<span>Name</span>
+					<span>Allocation</span>
+					<span className="text-right">Actions</span>
+				</div>
 				{form.watch('categories').map((_, index) => (
 					<BudgetExpenseItem key={index} index={index} form={form} deleteCategory={handleDeleteCategory} />
 				))}
