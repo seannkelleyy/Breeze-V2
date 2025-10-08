@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+
 import { useUser } from '@clerk/clerk-react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -15,6 +17,7 @@ export const CreateIncomeDialog = () => {
 
 	const form = useForm<Income>({
 		resolver: zodResolver(incomeFormSchema),
+		mode: 'onChange',
 		defaultValues: {
 			userId: user?.id ?? '',
 			budgetId: budget?.id ?? -1,
@@ -23,6 +26,12 @@ export const CreateIncomeDialog = () => {
 			date: new Date().toISOString().split('T')[0],
 		},
 	})
+
+	useEffect(() => {
+		if (budget?.id) {
+			form.setValue('budgetId', budget.id)
+		}
+	}, [form, budget?.id])
 
 	const postMutation = usePostIncome({
 		onSettled: () => {
@@ -33,7 +42,6 @@ export const CreateIncomeDialog = () => {
 
 	const onSubmit = (values: Income) => {
 		if (!user?.id || !budget?.id) return
-
 		postMutation.mutate({
 			budgetId: budget.id,
 			income: {

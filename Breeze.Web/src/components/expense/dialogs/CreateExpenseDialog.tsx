@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+
 import { useUser } from '@clerk/clerk-react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -24,6 +26,12 @@ export const CreateExpenseDialog = () => {
 			date: new Date().toISOString().split('T')[0],
 		},
 	})
+
+	useEffect(() => {
+		if (budget?.id) {
+			form.setValue('categoryId', categories[0]?.id ?? 1)
+		}
+	}, [form, categories])
 
 	const postMutation = usePostExpense({
 		onSettled: () => {
