@@ -1,7 +1,5 @@
-import { ReactNode } from 'react'
-
 import { useAuth, useUser } from '@clerk/clerk-react'
-import { BrowserRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom'
+import { Navigate, Outlet, RouterProvider, createBrowserRouter, useNavigate } from 'react-router-dom'
 
 import { Loading } from '@/components/loading/Loading'
 import { Navigation } from '@/components/navigation'
@@ -26,43 +24,49 @@ const NotFound = () => {
 	)
 }
 
-const ProtectedRoute = ({ children }: { children: ReactNode }) => {
+const ProtectedRoute = () => {
 	const { isSignedIn, isLoaded } = useUser()
 
 	// TODO: Add proper loading state handling using suspense
 	if (!isLoaded) return <Loading />
 	if (!isSignedIn) return <Navigate to="/login" />
 
-	return children
+	return <Outlet />
 }
 
-export const AppRoutes = () => {
-	return (
-		<BrowserRouter>
-			<Routes>
-				<Route
-					path="/login"
-					element={
-						<>
-							<Navigation />
-							<LandingPage />
-						</>
-					}
-				/>
-				<Route path="/loading" element={<DashboardSkeleton />} />
-				<Route
-					path="/"
-					element={
-						<ProtectedRoute>
-							<BudgetDataProvider>
-								<Navigation />
-								<Dashboard />
-							</BudgetDataProvider>
-						</ProtectedRoute>
-					}
-				/>
-				<Route path="*" element={<NotFound />} />
-			</Routes>
-		</BrowserRouter>
-	)
-}
+const router = createBrowserRouter([
+	{
+		path: '/login',
+		element: (
+			<>
+				<Navigation />
+				<LandingPage />
+			</>
+		),
+	},
+	{
+		path: '/loading',
+		element: <DashboardSkeleton />,
+	},
+	{
+		path: '/',
+		element: <ProtectedRoute />,
+		children: [
+			{
+				index: true,
+				element: (
+					<BudgetDataProvider>
+						<Navigation />
+						<Dashboard />
+					</BudgetDataProvider>
+				),
+			},
+		],
+	},
+	{
+		path: '*',
+		element: <NotFound />,
+	},
+])
+
+export const AppRoutes = () => <RouterProvider router={router} />
