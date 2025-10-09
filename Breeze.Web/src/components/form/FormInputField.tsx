@@ -12,14 +12,24 @@ type FormInputFieldProps<TFormValues extends FieldValues> = {
 	hideLabel?: boolean
 }
 
-export function FormInputField<TFormValues extends FieldValues>({
+/**
+ * FormInputField component for rendering a controlled input field.
+ * @param {UseFormReturn<TFormValues>} form - React Hook Form methods and state.
+ * @param {Path<TFormValues>} name - Name of the form field.
+ * @param {string} label - Label for the input field.
+ * @param {string} placeholder - Placeholder text for the input field.
+ * @param {string} type - Type of the input field (e.g., text, number).
+ * @param {boolean} hideLabel - Whether to visually hide the label (for accessibility).
+ * @returns {JSX.Element} The rendered input field component.
+ */
+export const FormInputField = <TFormValues extends FieldValues>({
 	form,
 	name,
 	label,
 	placeholder,
 	type = 'text',
 	hideLabel = false,
-}: FormInputFieldProps<TFormValues>) {
+}: FormInputFieldProps<TFormValues>) => {
 	return (
 		<FormField
 			control={form.control}

@@ -4,8 +4,8 @@ import { ClerkProvider } from '@clerk/clerk-react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import ReactDOM from 'react-dom/client'
 
-import { AppRoutes } from './config/routing/AppRoutes'
 import './index.css'
+import { AppRoutes } from './routing/AppRoutes'
 import { ThemeProvider } from './services/providers/ThemeProvider'
 
 const queryClient = new QueryClient()

@@ -20,7 +20,14 @@ const initialState: ThemeProviderState = {
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
 
-export function ThemeProvider({ children, storageKey = 'vite-ui-theme', ...props }: ThemeProviderProps) {
+/** ThemeProvider component to manage and provide theme state (light, dark, system) to the application.
+ * Enables access to theme state and updater function via context.
+ * @param {React.ReactNode} children - Child components that will have access to the theme context.
+ * @param {Theme} defaultTheme - Optional default theme to initialize the provider with.
+ * @param {string} storageKey - Optional key for storing the theme preference in localStorage.
+ * @returns {JSX.Element} The ThemeProvider component wrapping its children with ThemeProviderContext.
+ */
+export const ThemeProvider = ({ children, storageKey = 'vite-ui-theme', ...props }: ThemeProviderProps) => {
 	const [theme, setTheme] = useState<Theme>(() => {
 		const storedTheme = localStorage.getItem(storageKey) as Theme
 		if (storedTheme) return storedTheme

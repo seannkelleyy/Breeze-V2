@@ -10,6 +10,13 @@ type BudgetIncomeItemProps = {
 	deleteIncome: (index: number) => void
 }
 
+/**
+ * A component representing a single income item in the budget form.
+ * @param {number} index - The index of the income item in the form array.
+ * @param {UseFormReturn<BudgetFormData>} form - The react-hook-form instance managing the budget form.
+ * @param {(index: number) => void} deleteIncome - Function to delete the income at the specified index.
+ * @returns {JSX.Element} The rendered income item.
+ */
 export function BudgetIncomeItem({ index, form, deleteIncome }: BudgetIncomeItemProps) {
 	return (
 		<section className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto] gap-2 items-start">

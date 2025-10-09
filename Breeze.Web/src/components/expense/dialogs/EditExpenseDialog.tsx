@@ -16,6 +16,12 @@ type EditExpenseDialogProps = {
 	children?: React.ReactNode
 }
 
+/**
+ * Dialog component for editing an existing expense.
+ * @param {Expense} existingExpense - The expense to be edited.
+ * @param {React.ReactNode} children - Optional trigger element for the dialog.
+ * @returns {JSX.Element} The EditExpenseDialog component.
+ */
 export const EditExpenseDialog = ({ existingExpense, children }: EditExpenseDialogProps) => {
 	const { user } = useUser()
 	const { budget, categories, refetchBudget, refetchCategories, refetchExpenses } = useBudgetContext()

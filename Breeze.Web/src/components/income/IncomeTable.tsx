@@ -22,7 +22,6 @@ import { Input } from '../ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import { EditIncomeDialog } from './dialogs/EditIncomeDialog'
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const columns: ColumnDef<Income>[] = [
 	{
 		accessorKey: 'name',
@@ -71,7 +70,11 @@ export const columns: ColumnDef<Income>[] = [
 	},
 ]
 
-export function IncomeTable() {
+/**
+ * IncomeTable component for displaying a list of incomes.
+ * @returns {JSX.Element} The IncomeTable component that displays a list of incomes.
+ */
+export const IncomeTable = () => {
 	const [sorting, setSorting] = React.useState<SortingState>([])
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
 	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})

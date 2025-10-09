@@ -1,9 +1,13 @@
 import { Github, Linkedin, Mail } from 'lucide-react'
 
-import AuthButton from '../auth/AuthButton'
+import { AuthButton } from '../auth/AuthButton'
 import { ThemeToggle } from '../theme/ThemeToggle'
 import { Button } from '../ui/button'
 
+/**
+ * DesktopNavigation component for rendering the navigation bar on desktop screens.
+ * @returns {JSX.Element} The DesktopNavigation component.
+ */
 export const DesktopNavigation = () => {
 	return (
 		<section title="navigation" className="hidden sm:flex fixed top-0 w-full px-4 justify-between backdrop-blur-lg z-10 items-center">

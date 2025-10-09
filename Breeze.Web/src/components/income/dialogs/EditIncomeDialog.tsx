@@ -15,6 +15,12 @@ type EditIncomeDialogProps = {
 	children?: React.ReactNode
 }
 
+/**
+ * Dialog component for editing an existing income.
+ * @param {Income} existingIncome - The income to be edited.
+ * @param {React.ReactNode} children - Optional trigger element for the dialog.
+ * @returns {JSX.Element} The EditIncomeDialog component.
+ */
 export const EditIncomeDialog = ({ existingIncome, children }: EditIncomeDialogProps) => {
 	const { user } = useUser()
 	const { budget, refetchIncomes, refetchBudget } = useBudgetContext()

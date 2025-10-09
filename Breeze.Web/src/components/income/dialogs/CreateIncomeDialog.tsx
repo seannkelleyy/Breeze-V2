@@ -11,6 +11,10 @@ import { Income, incomeFormSchema } from '@/services/hooks/income/incomeServices
 import { usePostIncome } from '@/services/hooks/income/usePostIncome'
 import { useBudgetContext } from '@/services/providers/BudgetProvider'
 
+/**
+ * Component for creating a new income.
+ * @returns {JSX.Element} The CreateIncomeDialog component.
+ */
 export const CreateIncomeDialog = () => {
 	const { user } = useUser()
 	const { budget, refetchIncomes, refetchBudget } = useBudgetContext()

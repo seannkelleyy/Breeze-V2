@@ -12,6 +12,17 @@ interface BreezeDialogProps {
 	onOpenChange?: (open: boolean) => void
 }
 
+/**
+ * Reusable dialog component with consistent styling and behavior.
+ * @param {ReactNode} dialogTrigger - Element that triggers the dialog when clicked.
+ * @param {string} title - Title of the dialog.
+ * @param {string | ReactNode} description - Description or content of the dialog.
+ * @param {ReactNode} footerActions - Optional footer actions (e.g., buttons).
+ * @param {ReactNode} children - Content to be displayed inside the dialog.
+ * @param {boolean} open - Optional controlled open state.
+ * @param {(open: boolean) => void} onOpenChange - Optional controlled open state change handler.
+ * @returns {JSX.Element} The BreezeDialog component.
+ */
 export const BreezeDialog = ({
 	dialogTrigger,
 	title,

@@ -13,6 +13,10 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useBudgetContext } from '@/services/providers/BudgetProvider'
 
+/**
+ * Main page of the application displaying a budget and goals.
+ * @returns {JSX.Element} The Dashboard component displaying budget overview and management options.
+ */
 export const Dashboard = () => {
 	const { budget, getBudgetForDate } = useBudgetContext()
 	const [currentMonth, setCurrentMonth] = useState(new Date().getMonth())

@@ -99,7 +99,12 @@ export const columns: ColumnDef<Expense>[] = [
 	},
 ]
 
-export function ExpensesTable() {
+/**
+ * Component to display a table of expenses with sorting and filtering capabilities.
+ * Users can filter expenses by category and name, and sort by different columns.
+ * @returns {JSX.Element} The ExpensesTable component.
+ */
+export const ExpensesTable = () => {
 	const [sorting, setSorting] = React.useState<SortingState>([])
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
 	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})

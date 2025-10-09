@@ -27,6 +27,12 @@ type BudgetContextType = {
 
 const BudgetContext = React.createContext<BudgetContextType>({} as BudgetContextType)
 
+/**
+ * BudgetDataProvider component to manage and provide budget-related data and state to the application.
+ * Enables access to budget, incomes, categories, expenses, and refetch functions via context.
+ * @param {React.ReactNode} children - Child components that will have access to the budget context.
+ * @returns {JSX.Element} The BudgetDataProvider component wrapping its children with BudgetContext.
+ */
 export const BudgetDataProvider: React.FC<BudgetProviderProps> = ({ children }) => {
 	const [totalSpent, setTotalSpent] = useState(0)
 	const [budgetDate, setBudgetDate] = useState<Dayjs>(dayjs(new Date()))

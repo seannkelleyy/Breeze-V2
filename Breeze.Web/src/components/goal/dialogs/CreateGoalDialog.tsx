@@ -12,6 +12,11 @@ type CreateGoalDialogProps = {
 	refetchGoals: () => void
 }
 
+/**
+ * Dialog component for creating a new goal.
+ * @param {() => void} refetchGoals - Function to refetch the list of goals after a new goal is created.
+ * @returns {JSX.Element} The CreateGoalDialog component.
+ */
 export const CreateGoalDialog = ({ refetchGoals }: CreateGoalDialogProps) => {
 	const { user } = useUser()
 

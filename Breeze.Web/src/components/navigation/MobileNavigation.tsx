@@ -1,10 +1,14 @@
 import { Github, Linkedin, Mail } from 'lucide-react'
 
-import AuthButton from '../auth/AuthButton'
+import { AuthButton } from '../auth/AuthButton'
 import { ThemeToggle } from '../theme/ThemeToggle'
 import { Button } from '../ui/button'
 import { Menubar, MenubarContent, MenubarMenu, MenubarSeparator, MenubarTrigger } from '../ui/menubar'
 
+/**
+ * MobileNavigation component to render the navigation bar on mobile screens.
+ * @returns {JSX.Element} The MobileNavigation component.
+ */
 export const MobileNavigation = () => {
 	return (
 		<Menubar className="flex sm:hidden fixed top-0 w-full px-4 justify-between backdrop-blur-lg bg-white/2 z-10 border-none">

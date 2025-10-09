@@ -16,6 +16,13 @@ type EditGoalDialogProps = {
 	children?: React.ReactNode
 }
 
+/**
+ * Dialog component for editing an existing goal.
+ * @param {Goal} existingGoal - The goal to be edited.
+ * @param {() => void} refetchGoals - Function to refetch the list of goals after an update or deletion.
+ * @param {React.ReactNode} children - Optional trigger element for the dialog.
+ * @returns {JSX.Element} The EditGoalDialog component.
+ */
 export const EditGoalDialog = ({ existingGoal, refetchGoals, children }: EditGoalDialogProps) => {
 	const { user } = useUser()
 

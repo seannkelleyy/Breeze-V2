@@ -1,5 +1,9 @@
 import { Skeleton } from '@/components/ui/skeleton'
 
+/**
+ * DashboardSkeleton component to display loading skeletons for the dashboard.
+ * @returns {JSX.Element} The DashboardSkeleton component.
+ */
 export const DashboardSkeleton = () => {
 	return (
 		<div className="h-screen w-screen flex flex-col gap-4 justify-center items-center">

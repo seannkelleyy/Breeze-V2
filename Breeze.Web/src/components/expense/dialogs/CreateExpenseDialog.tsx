@@ -12,6 +12,10 @@ import { Expense, expenseFormSchema } from '@/services/hooks/expense/expenseServ
 import { usePostExpense } from '@/services/hooks/expense/usePostExpense'
 import { useBudgetContext } from '@/services/providers/BudgetProvider'
 
+/**
+ * Component for adding a new expense.
+ * @returns {JSX.Element} The CreateExpenseDialog component.
+ */
 export const CreateExpenseDialog = () => {
 	const { user } = useUser()
 	const { budget, categories, refetchBudget, refetchCategories, refetchExpenses } = useBudgetContext()

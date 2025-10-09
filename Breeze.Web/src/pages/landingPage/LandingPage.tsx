@@ -1,11 +1,30 @@
 import { SignUpButton, useUser } from '@clerk/clerk-react'
 import { Link } from 'react-router-dom'
 
-import AuthButton from '@/components/auth/AuthButton'
+import { AuthButton } from '@/components/auth/AuthButton'
 import { Button } from '@/components/ui/button'
 
 export const LandingPage = () => {
 	const { user, isSignedIn } = useUser()
+
+	const SignedIn = () => (
+		<div className="flex flex-col gap-2">
+			<p className="w-full text-center">Welcome, {user?.firstName}</p>
+			<Link to="/">
+				<Button>Go to Dashboard</Button>
+			</Link>
+		</div>
+	)
+
+	const SignedOut = () => (
+		<div className="flex flex-col gap-2">
+			<AuthButton />
+			<p className="w-full text-center text-sm mt-4">Don't have an account?</p>
+			<SignUpButton>
+				<Button className="w-min self-center">Sign Up</Button>
+			</SignUpButton>
+		</div>
+	)
 	return (
 		<section className="h-screen w-screen flex flex-col justify-center items-center">
 			<div className="flex flex-col justify-center items-center gap-2 h-full">
@@ -17,22 +36,7 @@ export const LandingPage = () => {
 					</b>
 					.
 				</p>
-				{isSignedIn ? (
-					<div className="flex flex-col gap-2">
-						<p className="w-full text-center">Welcome, {user.firstName}</p>
-						<Link to="/">
-							<Button>Go to Dashboard</Button>
-						</Link>
-					</div>
-				) : (
-					<div className="flex flex-col gap-2">
-						<AuthButton />
-						<p className="w-full text-center text-sm mt-4">Don't have an account?</p>
-						<SignUpButton>
-							<Button className="w-min self-center">Sign Up</Button>
-						</SignUpButton>
-					</div>
-				)}
+				{isSignedIn ? <SignedIn /> : <SignedOut />}
 			</div>
 		</section>
 	)

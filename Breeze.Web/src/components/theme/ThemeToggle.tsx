@@ -5,7 +5,10 @@ import { useTheme } from '@/services/providers/ThemeProvider'
 import { Button } from '../ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu'
 
-export function ThemeToggle() {
+/** ThemeToggle component for switching between light, dark, and system themes.
+ * @returns {JSX.Element} The ThemeToggle component.
+ */
+export const ThemeToggle = () => {
 	const { setTheme } = useTheme()
 
 	return (

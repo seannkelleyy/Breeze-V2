@@ -18,6 +18,10 @@ import { BreezeFormDialog } from '../dialog/BreezeFormDialog'
 import { BudgetExpenseItem } from './BudgetExpenseItem'
 import { BudgetIncomeItem } from './BudgetIncomeItem'
 
+/**
+ * A Dialog that allows users to view and edit their budget, including incomes and expense categories.
+ * @returns {JSX.Element} The BudgetDialog component.
+ */
 export const BudgetDialog = () => {
 	const { user } = useUser()
 	const { budget, categories, incomes, refetchCategories, refetchBudget, refetchIncomes } = useBudgetContext()

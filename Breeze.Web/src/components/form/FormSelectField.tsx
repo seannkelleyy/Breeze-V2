@@ -16,7 +16,16 @@ type FormSelectFieldProps<TFormValues extends FieldValues> = {
 	placeholder?: string
 }
 
-export function FormSelectField<TFormValues extends FieldValues>({ form, name, label, options, placeholder }: FormSelectFieldProps<TFormValues>) {
+/**
+ * FormSelectField component for rendering a controlled select dropdown.
+ * @param {UseFormReturn<TFormValues>} form - React Hook Form methods and state.
+ * @param {Path<TFormValues>} name - Name of the form field.
+ * @param {string} label - Label for the select field.
+ * @param {Option[]} options - Options for the select dropdown.
+ * @param {string} placeholder - Placeholder text for the select field.
+ * @returns {JSX.Element} The rendered select field component.
+ */
+export const FormSelectField = <TFormValues extends FieldValues>({ form, name, label, options, placeholder }: FormSelectFieldProps<TFormValues>) => {
 	return (
 		<FormField
 			control={form.control}

@@ -3,6 +3,13 @@
 	"appService.defaultWebAppToDeploy": "None",
 	"appService.deploySubpath": "Breeze.Api/bin/Release/net9.0/publish",
 	"appService.showBuildDuringDeployPrompt": false,
+	"editor.formatOnSave": true,
+	"[typescript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[typescriptreact]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
 	"sqltools.connections": [
 		{
 			"mysqlOptions": {

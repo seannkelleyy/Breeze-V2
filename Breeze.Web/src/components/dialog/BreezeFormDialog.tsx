@@ -18,7 +18,18 @@ interface BreezeFormDialogProps<TFormValues extends FieldValues> {
 	inputFields: ReactNode
 	destructiveElements?: ReactNode
 }
-
+/**
+ * Reusable form dialog component that integrates with react-hook-form and BreezeDialog.
+ * @param {ReactNode} dialogTrigger - Element that triggers the dialog when clicked.
+ * @param {string} title - Title of the dialog.
+ * @param {string} description - Description of the dialog.
+ * @param {string} itemType - Type of the item being edited/created.
+ * @param {UseFormReturn<TFormValues>} form - React Hook Form methods and state.
+ * @param {(values: TFormValues) => void} onSubmit - Callback function to handle form submission.
+ * @param {ReactNode} inputFields - Form fields to be rendered inside the dialog.
+ * @param {ReactNode} destructiveElements - Optional destructive elements (e.g., delete buttons).
+ * @returns {JSX.Element} The BreezeFormDialog component.
+ */
 export const BreezeFormDialog = <TFormValues extends FieldValues>({
 	dialogTrigger,
 	title,
