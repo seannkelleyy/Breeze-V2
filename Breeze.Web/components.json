@@ -1,10 +1,10 @@
 {
 	"$schema": "https://ui.shadcn.com/schema.json",
 	"aliases": {
-		"components": "@/components",
+		"components": "@/shared",
 		"hooks": "@/hooks",
 		"lib": "@/lib",
-		"ui": "@/components/ui",
+		"ui": "@/shared/ui",
 		"utils": "@/lib/utils"
 	},
 	"iconLibrary": "lucide",

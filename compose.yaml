@@ -1,4 +1,16 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: breeze-postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=Breeze-local
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - breeze-postgres-data:/var/lib/postgresql/data
+
   webApp:
     image: breeze-web
     build:
@@ -15,6 +27,8 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile.api
+    depends_on:
+      - postgres
     ports:
       - 7284:8080
     volumes:
@@ -24,4 +38,7 @@ services:
       - ./Breeze.Sql:/app/src/api
     environment:
       - CHOKIDAR_USEPOLLING=true
+      - ConnectionStrings__breezeDb-local=Host=postgres;Port=5432;Database=Breeze-local;Username=postgres;Password=postgres
 
+volumes:
+  breeze-postgres-data:

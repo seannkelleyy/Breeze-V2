@@ -1,18 +1,19 @@
-import { useAuth, useUser } from '@clerk/clerk-react'
 import { Navigate, Outlet, RouterProvider, createBrowserRouter, useNavigate } from 'react-router-dom'
 
-import { Navigation } from '@/components/navigation'
-import { Button } from '@/components/ui/button'
-import { Dashboard } from '@/pages/dashboard/Dashboard'
-import { DashboardSkeleton } from '@/pages/dashboard/DashboardSkeleton'
-import { LandingPage } from '@/pages/landingPage/LandingPage'
-import { BudgetDataProvider } from '@/services/providers/BudgetProvider'
+import { Dashboard, DashboardSkeleton } from '@/features/budgeting'
+import { BudgetDataProvider } from '@/features/budgeting/providers'
+import { LandingPage } from '@/features/landingPage'
+import { MortgageTools } from '@/features/mortgageTools'
+import { Planner } from '@/features/planner'
+import { useCurrentUser } from '@/shared/breezeAuthButton'
+import { Navigation } from '@/shared/navigation'
+import { Button } from '@/shared/ui/button'
 
 import { ROUTE_URLS, getHomeRoute } from './routeConfig'
 
 const NotFound = () => {
 	const navigate = useNavigate()
-	const { isSignedIn } = useAuth()
+	const { isSignedIn } = useCurrentUser()
 	const homeUrl = getHomeRoute(isSignedIn)
 
 	return (
@@ -25,7 +26,7 @@ const NotFound = () => {
 }
 
 const ProtectedRoute = () => {
-	const { isSignedIn, isLoaded } = useUser()
+	const { isSignedIn, isLoaded } = useCurrentUser()
 
 	if (!isLoaded) return <DashboardSkeleton />
 	if (!isSignedIn) return <Navigate to={ROUTE_URLS.login} />
@@ -57,6 +58,14 @@ const router = createBrowserRouter([
 				),
 			},
 		],
+	},
+	{
+		path: ROUTE_URLS.planner,
+		element: <Planner />,
+	},
+	{
+		path: ROUTE_URLS.mortgageTools,
+		element: <MortgageTools />,
 	},
 	{
 		path: ROUTE_URLS.notFound,

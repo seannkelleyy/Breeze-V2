@@ -6,7 +6,8 @@ import ReactDOM from 'react-dom/client'
 
 import './index.css'
 import { AppRoutes } from './routing/AppRoutes'
-import { ThemeProvider } from './services/providers/ThemeProvider'
+import { CurrentUserProvider } from './shared/breezeAuthButton'
+import { ThemeProvider } from './shared/theme/ThemeProvider'
 
 const queryClient = new QueryClient()
 
@@ -21,7 +22,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 		<QueryClientProvider client={queryClient}>
 			<ThemeProvider defaultTheme="system">
 				<ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/login" signInForceRedirectUrl={'/'}>
-					<AppRoutes />
+					<CurrentUserProvider>
+						<AppRoutes />
+					</CurrentUserProvider>
 				</ClerkProvider>
 			</ThemeProvider>
 		</QueryClientProvider>

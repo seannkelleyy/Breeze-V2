@@ -69,7 +69,7 @@ builder.Services.AddDbContext<BreezeContext>(options =>
 {
     if (builder.Environment.IsDevelopment())
     {
-        options.UseMySql(builder.Configuration.GetConnectionString("breezeDb-local"), new MySqlServerVersion(new Version(8, 0, 33)));
+        options.UseNpgsql(builder.Configuration.GetConnectionString("breezeDb-local"));
     }
     else
     {
@@ -94,6 +94,53 @@ builder.Services.AddControllers();
 
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<BreezeContext>();
+    db.Database.EnsureCreated();
+
+    if (db.Database.IsNpgsql())
+    {
+        db.Database.ExecuteSqlRaw(@"
+ALTER TABLE IF EXISTS ""PlannerPerson""
+    ADD COLUMN IF NOT EXISTS ""BonusMode"" text NOT NULL DEFAULT 'dollars',
+    ADD COLUMN IF NOT EXISTS ""AnnualBonus"" numeric(18,2) NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS ""IncomeGrowthRate"" numeric(9,4) NOT NULL DEFAULT 0;
+
+ALTER TABLE IF EXISTS ""PlannerAccount""
+    ADD COLUMN IF NOT EXISTS ""PurchaseDate"" timestamp with time zone NULL,
+    ADD COLUMN IF NOT EXISTS ""PurchasePrice"" numeric(18,2) NULL,
+    ADD COLUMN IF NOT EXISTS ""CurrentValue"" numeric(18,2) NULL,
+    ADD COLUMN IF NOT EXISTS ""AnnualChangeRate"" numeric(9,4) NULL,
+    ADD COLUMN IF NOT EXISTS ""HomeGrowthProfile"" text NULL,
+    ADD COLUMN IF NOT EXISTS ""VehicleDepreciationProfile"" text NULL,
+    ADD COLUMN IF NOT EXISTS ""HasLoan"" boolean NOT NULL DEFAULT false,
+    ADD COLUMN IF NOT EXISTS ""LoanInterestRate"" numeric(9,4) NULL,
+    ADD COLUMN IF NOT EXISTS ""OriginalLoanAmount"" numeric(18,2) NULL,
+    ADD COLUMN IF NOT EXISTS ""LoanMonthlyPayment"" numeric(18,2) NULL,
+    ADD COLUMN IF NOT EXISTS ""LoanTermYears"" integer NULL,
+    ADD COLUMN IF NOT EXISTS ""LoanStartDate"" timestamp with time zone NULL,
+    ADD COLUMN IF NOT EXISTS ""CurrentLoanBalance"" numeric(18,2) NULL;
+
+UPDATE ""PlannerPerson""
+SET ""BonusMode"" = 'dollars'
+WHERE ""BonusMode"" IS NULL OR BTRIM(""BonusMode"") = '';
+");
+    }
+
+    if (!db.IRSAccounts.Any())
+    {
+        db.IRSAccounts.AddRange(
+            new Breeze.Domain.IRSAccount { Type = "401k", MaxAmount = 24500m, FamilyMaxAmount = null, CatchUpAmount = 8000m, CatchUpAge = 50 },
+            new Breeze.Domain.IRSAccount { Type = "Roth IRA", MaxAmount = 7500m, FamilyMaxAmount = null, CatchUpAmount = 1100m, CatchUpAge = 50 },
+            new Breeze.Domain.IRSAccount { Type = "Traditional IRA", MaxAmount = 7500m, FamilyMaxAmount = null, CatchUpAmount = 1100m, CatchUpAge = 50 },
+            new Breeze.Domain.IRSAccount { Type = "HSA", MaxAmount = 4400m, FamilyMaxAmount = 8750m, CatchUpAmount = 1000m, CatchUpAge = 55 }
+        );
+        db.SaveChanges();
+    }
+}
 
 app.UseSwagger();
 app.UseSwaggerUI();

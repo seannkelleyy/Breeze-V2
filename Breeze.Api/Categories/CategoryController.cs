@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Breeze.Api.Budgets;
+﻿using Breeze.Api.Budgets;
 using Breeze.Api.Categories.RequestResponseObjects;
 using Breeze.Api.Expenses;
 using Breeze.Data;
@@ -107,7 +106,7 @@ namespace Breeze.Api.Categories
         }
 
         [HttpDelete("{categoryId}")]
-        public async Task<IActionResult> DeleteCategory([FromRoute] int categoryId)
+        public IActionResult DeleteCategory([FromRoute] int categoryId)
         {
             try
             {
