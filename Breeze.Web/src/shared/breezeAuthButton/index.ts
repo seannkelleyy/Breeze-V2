@@ -1,3 +1,3 @@
+export { CurrentUserProvider } from '../providers/currentUser/CurrentUserContext'
+export { useCurrentUser } from '../providers/currentUser/useCurrentUser'
 export { BreezeAuthButton } from './BreezeAuthButton'
-export { CurrentUserProvider } from './CurrentUserContext'
-export { useCurrentUser } from './useCurrentUser'

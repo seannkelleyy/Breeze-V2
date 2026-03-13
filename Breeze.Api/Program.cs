@@ -59,10 +59,21 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddApplicationInsightsTelemetry(options =>
+var applicationInsightsConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
+var applicationInsightsInstrumentationKey = builder.Configuration["ApplicationInsights:InstrumentationKey"];
+
+if (string.IsNullOrWhiteSpace(applicationInsightsConnectionString) && !string.IsNullOrWhiteSpace(applicationInsightsInstrumentationKey))
 {
-    options.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"];
-});
+    applicationInsightsConnectionString = $"InstrumentationKey={applicationInsightsInstrumentationKey}";
+}
+
+if (!string.IsNullOrWhiteSpace(applicationInsightsConnectionString))
+{
+    builder.Services.AddApplicationInsightsTelemetry(options =>
+    {
+        options.ConnectionString = applicationInsightsConnectionString;
+    });
+}
 
 // Establish connection string
 builder.Services.AddDbContext<BreezeContext>(options =>

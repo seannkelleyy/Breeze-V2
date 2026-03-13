@@ -1,7 +1,7 @@
 import { Line } from 'recharts'
 
+import BreezeLineChart from '@/shared/breezeChart/BreezeLineChart'
 import { FormattedNumberInput } from '@/shared/form/FormattedNumberInput'
-import { BreezeLineChart } from '@/shared/ui/breeze-chart'
 import type { ChartConfig } from '@/shared/ui/chart'
 import { Label } from '@/shared/ui/label'
 import { TabsContent } from '@/shared/ui/tabs'
@@ -122,8 +122,8 @@ export const AmortizationTab = ({ data, state, actions, chart, helpers }: Amorti
 						xAxisDataKey="date"
 						margin={{ top: 8, right: 16, bottom: 8, left: 0 }}
 						leftAxis={{ dataKey: 'balance', tickFormatter: formatCompactAxisLabel }}
-						tooltipFormatter={(value) => formatCurrency(Number(value))}
-						tooltipLabelFormatter={(label, payload) => {
+						tooltipFormatter={(value: number) => formatCurrency(Number(value))}
+						tooltipLabelFormatter={(label: string | number, payload: ReadonlyArray<{ payload?: Record<string, unknown> }>) => {
 							const period = payload?.[0]?.payload?.period
 							return period ? `${label} (Month ${period})` : `${label}`
 						}}
@@ -218,7 +218,7 @@ export const AmortizationTab = ({ data, state, actions, chart, helpers }: Amorti
 										yAxisId: ratioShareAxisId,
 										dataKey: 'principalSharePercent',
 										domain: [0, 100],
-										tickFormatter: (value) => `${value}%`,
+										tickFormatter: (value: number) => `${value}%`,
 									}
 						}
 						rightAxis={
@@ -230,14 +230,14 @@ export const AmortizationTab = ({ data, state, actions, chart, helpers }: Amorti
 									}
 								: undefined
 						}
-						tooltipFormatter={(value, _name, item) => {
+						tooltipFormatter={(value: number, _name: string, item: unknown) => {
 							const dataKey = String((item as { dataKey?: string })?.dataKey ?? '')
 							if (dataKey.toLowerCase().includes('sharepercent')) {
 								return `${Number(value).toFixed(1)}%`
 							}
 							return formatCurrency(Number(value))
 						}}
-						tooltipLabelFormatter={(label, payload) => {
+						tooltipLabelFormatter={(label: string | number, payload: ReadonlyArray<{ payload?: Record<string, unknown> }>) => {
 							const period = payload?.[0]?.payload?.period
 							return period ? `${label} (Month ${period})` : `${label}`
 						}}

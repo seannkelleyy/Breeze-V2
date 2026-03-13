@@ -24,7 +24,7 @@ type BreezeLineChartProps<TData extends Record<string, unknown>> = {
 	rightAxis?: BreezeAxis
 	mirrorSingleAxis?: boolean
 	tooltipFormatter?: (value: number, name: string, item: unknown) => ReactNode
-	tooltipLabelFormatter?: (label: string | number, payload: Array<{ payload?: Record<string, unknown> }>) => ReactNode
+	tooltipLabelFormatter?: (label: string | number, payload: ReadonlyArray<{ payload?: Record<string, unknown> }>) => ReactNode
 	children: ReactNode
 }
 
@@ -80,7 +80,7 @@ export const BreezeLineChart = <TData extends Record<string, unknown>>({
 							labelFormatter={
 								tooltipLabelFormatter
 									? (label, payload) =>
-											tooltipLabelFormatter(label as string | number, (payload as Array<{ payload?: Record<string, unknown> }>) ?? [])
+											tooltipLabelFormatter(label as string | number, (payload as ReadonlyArray<{ payload?: Record<string, unknown> }>) ?? [])
 									: undefined
 							}
 						/>

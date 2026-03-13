@@ -1,9 +1,9 @@
 import { type ReactNode, useEffect, useMemo, useState } from 'react'
 
+import { AmortizationTab, LoanCompareTab, RefinanceTab } from '@/features/mortgageTools/components/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
 import type { ChartConfig } from '@/shared/ui/chart'
 import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/tabs'
-import { AmortizationTab, LoanCompareTab, RefinanceTab } from '@/features/mortgageTools/components/tabs'
 
 type HomeLoanContext = {
 	accountName: string
@@ -229,8 +229,9 @@ export const PlannerToolsCard = ({ collapsed, toggleControl, formatCurrency, hom
 		const maxPoints = 120
 		const stride = Math.max(1, Math.ceil(baseLoanSummary.rows.length / maxPoints))
 		const reducedRows = baseLoanSummary.rows.filter((_, index) => index % stride === 0)
-		const lastRow = baseLoanSummary.rows.at(-1)
-		if (lastRow && reducedRows.at(-1)?.period !== lastRow.period) {
+		const lastRow = baseLoanSummary.rows[baseLoanSummary.rows.length - 1]
+		const reducedLastRow = reducedRows[reducedRows.length - 1]
+		if (lastRow && reducedLastRow?.period !== lastRow.period) {
 			reducedRows.push(lastRow)
 		}
 

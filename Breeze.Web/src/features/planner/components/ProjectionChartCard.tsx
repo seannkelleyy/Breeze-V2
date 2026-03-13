@@ -1,7 +1,7 @@
 import { Line } from 'recharts'
 
 import { usePlannerPageContext } from '@/features/planner/context'
-import { BreezeLineChart } from '@/shared/ui/breeze-chart'
+import BreezeLineChart from '@/shared/breezeChart/BreezeLineChart'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
 import type { ChartConfig } from '@/shared/ui/chart'
 
@@ -48,7 +48,7 @@ export const ProjectionChartCard = () => {
 						margin={{ top: 8, right: 16, bottom: 8, left: 0 }}
 						leftAxis={{
 							dataKey: 'totalBalance',
-							tickFormatter: (value) => {
+							tickFormatter: (value: number) => {
 								if (value >= 1000000) {
 									return `${(value / 1000000).toFixed(1)}M`
 								}
@@ -58,8 +58,8 @@ export const ProjectionChartCard = () => {
 								return `${value}`
 							},
 						}}
-						tooltipFormatter={(value) => formatCurrency(Number(value))}
-						tooltipLabelFormatter={(label) => `Age ${label}`}
+						tooltipFormatter={(value: number) => formatCurrency(Number(value))}
+						tooltipLabelFormatter={(label: string | number) => `Age ${label}`}
 					>
 						<Line type="monotone" dataKey="totalBalance" stroke="var(--color-totalBalance)" strokeWidth={3} dot={false} strokeDasharray="6 4" />
 						{accounts.map((account, index) => (

@@ -1,6 +1,7 @@
 import * as React from 'react'
 
 import * as RechartsPrimitive from 'recharts'
+import type { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent'
 
 import { cn } from '@/lib/utils'
 
@@ -79,7 +80,7 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
 
 const ChartTooltip = RechartsPrimitive.Tooltip
 
-type ChartTooltipContentProps = React.ComponentProps<'div'> & Partial<RechartsPrimitive.TooltipContentProps<number, string>>
+type ChartTooltipContentProps = React.ComponentProps<'div'> & Partial<RechartsPrimitive.TooltipContentProps<ValueType, NameType>>
 
 const ChartTooltipContent = React.forwardRef<HTMLDivElement, ChartTooltipContentProps>(
 	({ active, payload, className, label, labelFormatter, formatter }, ref) => {

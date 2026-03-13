@@ -7,7 +7,7 @@ import ReactDOM from 'react-dom/client'
 import './index.css'
 import { AppRoutes } from './routing/AppRoutes'
 import { CurrentUserProvider } from './shared/breezeAuthButton'
-import { ThemeProvider } from './shared/theme/ThemeProvider'
+import { ThemeProvider } from './shared/providers/theme/ThemeProvider'
 
 const queryClient = new QueryClient()
 

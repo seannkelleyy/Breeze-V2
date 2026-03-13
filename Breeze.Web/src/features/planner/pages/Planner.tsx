@@ -469,7 +469,7 @@ export const Planner = () => {
 			useInflationAdjustedValues,
 		]
 	)
-	const projectedNetWorthAtTargetAge = projectionRows.at(-1)?.totalBalance ?? totalStartingBalance
+	const projectedNetWorthAtTargetAge = projectionRows[projectionRows.length - 1]?.totalBalance ?? totalStartingBalance
 	const financialFreedomAge = useMemo(() => {
 		const firstFreedomRow = projectionRows.find((row) => row.totalBalance >= financialFreedomTarget)
 		return firstFreedomRow?.age ?? null
