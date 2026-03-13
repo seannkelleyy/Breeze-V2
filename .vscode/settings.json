@@ -9,21 +9,6 @@
 	},
 	"[typescriptreact]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
-	},
-	"sqltools.connections": [
-		{
-			"postgresqlOptions": {
-				"ssl": "Disabled"
-			},
-			"previewLimit": 50,
-			"server": "127.0.0.1",
-			"port": 5432,
-			"driver": "PostgreSQL",
-			"name": "Breeze-local",
-			"database": "Breeze-Local",
-			"username": "postgres",
-			"password": ""
-		}
-	]
+	}
 }
 
