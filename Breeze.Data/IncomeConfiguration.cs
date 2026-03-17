@@ -15,6 +15,11 @@ namespace Breeze.Data
             modelBuilder
                 .Property(i => i.Amount)
                 .HasPrecision(18, 2);
+            modelBuilder
+                .Property(i => i.SourceType)
+                .HasMaxLength(30)
+                .HasDefaultValue("manual");
+            modelBuilder.HasIndex(i => new { i.UserId, i.BudgetId, i.SourceTemplateId, i.SourceOccurrenceDate });
         }
     }
 }

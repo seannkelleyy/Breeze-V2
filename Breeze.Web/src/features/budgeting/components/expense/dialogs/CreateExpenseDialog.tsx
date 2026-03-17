@@ -52,6 +52,9 @@ export const CreateExpenseDialog = () => {
 			expense: {
 				...values,
 				userId,
+				isRecurring: false,
+				recurrenceInterval: 'none',
+				dueDayOfMonth: null,
 			},
 		})
 	}

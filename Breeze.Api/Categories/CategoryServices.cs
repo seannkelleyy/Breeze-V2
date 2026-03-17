@@ -50,6 +50,9 @@ namespace Breeze.Api.Categories
                         Allocation = category.Allocation,
                         CurrentSpend = category.CurrentSpend,
                         BudgetId = category.BudgetId,
+                        SourceType = category.SourceType,
+                        SourceTemplateId = category.SourceTemplateId,
+                        GenerationMonth = category.GenerationMonth,
                     })
                     .First();
             }
@@ -80,6 +83,9 @@ namespace Breeze.Api.Categories
                         Allocation = category.Allocation,
                         CurrentSpend = category.CurrentSpend,
                         BudgetId = category.BudgetId,
+                        SourceType = category.SourceType,
+                        SourceTemplateId = category.SourceTemplateId,
+                        GenerationMonth = category.GenerationMonth,
                     })
                     .ToList();
             }
@@ -116,6 +122,9 @@ namespace Breeze.Api.Categories
                     Allocation = newCategory.Allocation,
                     CurrentSpend = newCategory.CurrentSpend,
                     BudgetId = budget.Id,
+                    SourceType = "manual",
+                    SourceTemplateId = null,
+                    GenerationMonth = null,
                 };
                 db.Categories.Add(category);
                 db.SaveChanges();
@@ -154,6 +163,9 @@ namespace Breeze.Api.Categories
                 category.Name = updatedCategory.Name;
                 category.Allocation = updatedCategory.Allocation;
                 category.CurrentSpend = updatedCategory.CurrentSpend;
+                category.SourceType = "manual";
+                category.SourceTemplateId = null;
+                category.GenerationMonth = null;
                 db.Categories.Update(category);
                 db.SaveChanges();
                 return category.Id;
@@ -255,7 +267,24 @@ namespace Breeze.Api.Categories
                     return -4;
                 }
 
-                var amountSpent = expenses.Sum(expense => expense.Amount);
+                var budget = db.Budgets.Find(existingCategory.BudgetId);
+                if (budget is null)
+                {
+                    return -2;
+                }
+
+                var amountSpent = expenses.Sum(expense =>
+                {
+                    var occurrences = GetOccurrencesForMonth(
+                        budget.Date,
+                        expense.IsRecurring,
+                        expense.RecurrenceInterval,
+                        expense.Date,
+                        expense.DueDayOfMonth,
+                        expense.Date.Day
+                    );
+                    return expense.Amount * occurrences;
+                });
 
                 existingCategory.CurrentSpend = amountSpent;
                 var categories = GetCategoriesByBudgetId(userId, existingCategory.BudgetId);
@@ -272,6 +301,88 @@ namespace Breeze.Api.Categories
                 _logger.LogError(ex.Message);
                 return -5;
             }
+        }
+
+        private static int GetOccurrencesForMonth(
+            DateOnly budgetDate,
+            bool isRecurring,
+            string? recurrenceInterval,
+            DateOnly anchorDate,
+            int? configuredDayOfMonth,
+            int fallbackDay
+        )
+        {
+            if (!isRecurring)
+            {
+                return 1;
+            }
+
+            var normalizedInterval = recurrenceInterval?.Trim().ToLowerInvariant() ?? "monthly";
+
+            if (normalizedInterval is "monthly" or "quarterly" or "yearly")
+            {
+                var cadenceMonths = normalizedInterval switch
+                {
+                    "quarterly" => 3,
+                    "yearly" => 12,
+                    _ => 1,
+                };
+
+                var year = budgetDate.Year;
+                var month = budgetDate.Month;
+                var daysInMonth = DateTime.DaysInMonth(year, month);
+                var dayOfMonth = Math.Clamp(configuredDayOfMonth ?? fallbackDay, 1, daysInMonth);
+                var occurrenceDate = new DateOnly(year, month, dayOfMonth);
+
+                var monthDelta = (year - anchorDate.Year) * 12 + (month - anchorDate.Month);
+                if (monthDelta < 0)
+                {
+                    return 0;
+                }
+
+                if (monthDelta % cadenceMonths != 0)
+                {
+                    return 0;
+                }
+
+                return occurrenceDate >= anchorDate ? 1 : 0;
+            }
+
+            var intervalDays = normalizedInterval switch
+            {
+                "weekly" => 7,
+                "biweekly" => 14,
+                _ => 0,
+            };
+
+            var budgetYear = budgetDate.Year;
+            var budgetMonth = budgetDate.Month;
+            var monthStart = new DateOnly(budgetYear, budgetMonth, 1);
+            var daysInTargetMonth = DateTime.DaysInMonth(budgetYear, budgetMonth);
+            var monthEnd = new DateOnly(budgetYear, budgetMonth, daysInTargetMonth);
+
+            if (intervalDays == 0)
+            {
+                return 1;
+            }
+
+            var nextOccurrence = anchorDate;
+            if (nextOccurrence < monthStart)
+            {
+                var daysDiff = monthStart.DayNumber - nextOccurrence.DayNumber;
+                var intervalsToAdvance = (daysDiff + intervalDays - 1) / intervalDays;
+                nextOccurrence = nextOccurrence.AddDays(intervalsToAdvance * intervalDays);
+            }
+
+            var occurrences = 0;
+
+            while (nextOccurrence <= monthEnd)
+            {
+                occurrences++;
+                nextOccurrence = nextOccurrence.AddDays(intervalDays);
+            }
+
+            return occurrences;
         }
     }
 }

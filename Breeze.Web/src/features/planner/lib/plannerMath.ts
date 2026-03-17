@@ -6,6 +6,7 @@ import type {
 	AssetFinanceDetails,
 	AssetFinanceSnapshot,
 	BonusMode,
+	FinancialMathSnapshot,
 	HomeGrowthProfile,
 	IrsLimitConfig,
 	IrsLimitKey,
@@ -133,6 +134,88 @@ export const getMonthlyContribution = (targetAmount: number, startingBalance: nu
 	return clamp((targetAmount - futureValueOfPrincipal) / annuityFactor)
 }
 
+export const getYearsUntilGoalEstimate = (targetAmount: number, currentAmount: number, yearlySavings: number, annualRatePercent: number) => {
+	const rate = annualRatePercent / 100
+	if (targetAmount <= 0 || yearlySavings <= 0 || rate <= 0) {
+		return null
+	}
+
+	const numerator = targetAmount * rate
+	const denominator = yearlySavings
+	const currentTerm = currentAmount * rate
+	const growthBase = 1 + rate
+	const inner = numerator / denominator + 1 + currentTerm / denominator
+
+	if (inner <= 0 || growthBase <= 1) {
+		return null
+	}
+
+	const years = Math.log(inner) / Math.log(growthBase)
+	return Number.isFinite(years) && years >= 0 ? years : null
+}
+
+export const getFinancialMathSnapshot = ({
+	monthlyExpenses,
+	selfSalary,
+	spouseSalary,
+	safeWithdrawalRate,
+	currentPortfolio,
+}: {
+	monthlyExpenses: number
+	selfSalary: number
+	spouseSalary: number
+	safeWithdrawalRate: number
+	currentPortfolio: number
+}): FinancialMathSnapshot => {
+	const normalizedMonthlyExpenses = clamp(monthlyExpenses)
+	const annualSpend = normalizedMonthlyExpenses * 12
+	const grossIncome = clamp(selfSalary) + clamp(spouseSalary)
+	const netIncomeFactor = plannerConstants.PLANNER_DEFAULT_NET_INCOME_FACTOR
+	const annualExtraExpenseBuffer = plannerConstants.PLANNER_DEFAULT_ANNUAL_EXTRA_EXPENSE_BUFFER
+	const netIncome = grossIncome * netIncomeFactor
+	const yearlySavings = clamp(netIncome - annualSpend - annualExtraExpenseBuffer)
+	const safeWithdrawalRatePercent = Math.max(plannerConstants.PLANNER_SAFE_WITHDRAWAL_RATE_MIN, safeWithdrawalRate)
+	const safeWithdrawalRateDecimal = safeWithdrawalRatePercent / 100
+	const yearsToGoalRatePercent = plannerConstants.PLANNER_DEFAULT_FIRE_PROJECTION_RATE
+
+	const scenarios = plannerConstants.PLANNER_FINANCIAL_MATH_SCENARIOS.map((scenario) => {
+		const yearlySpend = annualSpend * scenario.spendMultiplier
+		const targetAmount = safeWithdrawalRateDecimal > 0 ? yearlySpend / safeWithdrawalRateDecimal : 0
+		const percentToGoal = targetAmount > 0 ? (clamp(currentPortfolio) / targetAmount) * 100 : 0
+		const yearsUntilGoal = getYearsUntilGoalEstimate(targetAmount, clamp(currentPortfolio), yearlySavings, yearsToGoalRatePercent)
+
+		return {
+			label: scenario.label,
+			spendMultiplier: scenario.spendMultiplier,
+			yearlySpend,
+			targetAmount,
+			percentToGoal,
+			yearsUntilGoal,
+		}
+	})
+
+	return {
+		monthlyExpenses: normalizedMonthlyExpenses,
+		annualSpend,
+		emergencyFund3Months: normalizedMonthlyExpenses * 3,
+		emergencyFund6Months: normalizedMonthlyExpenses * 6,
+		emergencyFund12Months: normalizedMonthlyExpenses * 12,
+		selfSalary: clamp(selfSalary),
+		spouseSalary: clamp(spouseSalary),
+		grossIncome,
+		netIncomeFactor,
+		netIncome,
+		annualExtraExpenseBuffer,
+		yearlySavings,
+		safeWithdrawalRatePercent,
+		withdrawalMultiplier: safeWithdrawalRateDecimal > 0 ? 1 / safeWithdrawalRateDecimal : 0,
+		currentPortfolio: clamp(currentPortfolio),
+		yearlyPortfolioIncome: clamp(currentPortfolio) * safeWithdrawalRateDecimal,
+		yearsToGoalRatePercent,
+		scenarios,
+	}
+}
+
 export const getRealAnnualRatePercent = (nominalAnnualRatePercent: number, inflationRatePercent: number) => {
 	const nominal = nominalAnnualRatePercent / 100
 	const inflation = inflationRatePercent / 100
@@ -205,6 +288,25 @@ export const getAccountAnnualRateFromProfile = (
 
 	const nominalAnnualRate = plannerConstants.PLANNER_ACCOUNT_RATE_PROFILE_RATES[profile]
 	return getEffectiveAnnualRatePercent(nominalAnnualRate, inflationRatePercent, useInflationAdjustedValues)
+}
+
+export const getAccountRateProfileFromAnnualRate = (
+	annualRate: number,
+	inflationRatePercent: number,
+	useInflationAdjustedValues: boolean
+): AccountRateProfile => {
+	const tolerance = 0.0001
+	const rates = plannerConstants.PLANNER_ACCOUNT_RATE_PROFILE_RATES
+	const profileOrder: Array<Exclude<AccountRateProfile, 'custom'>> = ['none', 'money-market', 'bonds', 'stock-bond-mix', 'stocks']
+
+	for (const profile of profileOrder) {
+		const effectiveProfileRate = getEffectiveAnnualRatePercent(rates[profile], inflationRatePercent, useInflationAdjustedValues)
+		if (Math.abs(annualRate - effectiveProfileRate) <= tolerance) {
+			return profile
+		}
+	}
+
+	return 'custom'
 }
 
 export const getStoredAnnualRateFromInput = (
@@ -312,6 +414,34 @@ const getBonusAmount = (person: PlannerPerson | undefined) => {
 }
 
 export const getTotalAnnualIncome = (person: PlannerPerson | undefined) => clamp(person?.annualSalary ?? 0) + getBonusAmount(person)
+
+export const getPlannerHouseholdSnapshot = (people: PlannerPerson[]) => {
+	const selfPerson = people.find((person) => person.type === 'self') ?? people[0]
+	const spousePerson = people.find((person) => person.type === 'spouse')
+
+	return {
+		selfPerson,
+		spousePerson,
+		hasSpouse: Boolean(spousePerson),
+		selfBirthday: selfPerson?.birthday ?? '',
+		selfAnnualIncome: getTotalAnnualIncome(selfPerson),
+		spouseAnnualIncome: getTotalAnnualIncome(spousePerson),
+	}
+}
+
+export const getPlannerContributionTotals = (accounts: PlannerAccount[], selfAnnualIncome: number, spouseAnnualIncome: number) => {
+	const totalPlannedMonthlyEmployee = accounts.reduce(
+		(sum, account) => sum + getEmployeeMonthlyContribution(account, selfAnnualIncome, spouseAnnualIncome),
+		0
+	)
+	const totalPlannedMonthlyMatch = accounts.reduce((sum, account) => sum + getEmployerMatchMonthly(account, selfAnnualIncome, spouseAnnualIncome), 0)
+
+	return {
+		totalPlannedMonthlyEmployee,
+		totalPlannedMonthlyMatch,
+		totalPlannedMonthlyInvestment: totalPlannedMonthlyEmployee + totalPlannedMonthlyMatch,
+	}
+}
 
 export const getAnnualIncomeWithGrowth = (baseAnnualIncome: number, annualGrowthRate: number, elapsedYears: number) =>
 	clamp(baseAnnualIncome) * (1 + annualGrowthRate / 100) ** Math.max(0, elapsedYears)

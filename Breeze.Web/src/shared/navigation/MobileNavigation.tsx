@@ -1,3 +1,5 @@
+import { UserPreferencesModal } from '@/features/userPreferences/components/UserPreferencesModal'
+
 import { BreezeAuthButton } from '../breezeAuthButton/BreezeAuthButton'
 import { ThemeToggle } from '../theme/ThemeToggle'
 import { Menubar, MenubarContent, MenubarMenu, MenubarSeparator, MenubarTrigger } from '../ui/menubar'
@@ -35,6 +37,7 @@ export const MobileNavigation = () => {
 					))}
 				</MenubarContent>
 			</MenubarMenu>
+			<UserPreferencesModal />
 			<ThemeToggle />
 			<BreezeAuthButton />
 		</Menubar>

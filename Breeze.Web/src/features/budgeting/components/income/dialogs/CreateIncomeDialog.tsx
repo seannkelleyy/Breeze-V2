@@ -52,6 +52,9 @@ export const CreateIncomeDialog = () => {
 				...values,
 				userId,
 				budgetId: budget.id,
+				isRecurring: false,
+				recurrenceInterval: 'none',
+				paydayDayOfMonth: null,
 			},
 		})
 	}
@@ -60,6 +63,7 @@ export const CreateIncomeDialog = () => {
 
 	const inputFields = (
 		<>
+			<p className="text-sm text-muted-foreground">For recurring payroll, use Manage Recurring Templates.</p>
 			<FormInputField form={form} name="name" label="Name" placeholder="e.g., Paycheck" />
 			<FormInputField form={form} name="amount" label="Amount" type="number" placeholder="0.00" />
 			<FormInputField form={form} name="date" label="Date" type="date" placeholder="YYYY-MM-DD" />

@@ -46,6 +46,12 @@ namespace Breeze.Api.Incomes
                         Date = income.Date,
                         BudgetId = income.BudgetId,
                         Amount = income.Amount,
+                        IsRecurring = income.IsRecurring,
+                        RecurrenceInterval = income.RecurrenceInterval,
+                        PaydayDayOfMonth = income.PaydayDayOfMonth,
+                        SourceType = income.SourceType,
+                        SourceTemplateId = income.SourceTemplateId,
+                        SourceOccurrenceDate = income.SourceOccurrenceDate,
                     }).First();
             }
             catch (Exception ex)
@@ -75,6 +81,12 @@ namespace Breeze.Api.Incomes
                         Date = income.Date,
                         BudgetId = income.BudgetId,
                         Amount = income.Amount,
+                        IsRecurring = income.IsRecurring,
+                        RecurrenceInterval = income.RecurrenceInterval,
+                        PaydayDayOfMonth = income.PaydayDayOfMonth,
+                        SourceType = income.SourceType,
+                        SourceTemplateId = income.SourceTemplateId,
+                        SourceOccurrenceDate = income.SourceOccurrenceDate,
                     })
                     .ToList();
                 if (items != null)
@@ -118,6 +130,13 @@ namespace Breeze.Api.Incomes
                     Date = newIncome.Date,
                     BudgetId = budget.Id,
                     Amount = newIncome.Amount,
+                    IsRecurring = newIncome.IsRecurring,
+                    RecurrenceInterval = NormalizeRecurrenceInterval(newIncome.RecurrenceInterval, newIncome.IsRecurring),
+                    PaydayDayOfMonth = NormalizeDayOfMonth(newIncome.PaydayDayOfMonth, newIncome.Date.Day, newIncome.IsRecurring),
+                    SourceType = "manual",
+                    SourceTemplateId = null,
+                    SourceOccurrenceDate = null,
+                    GenerationMonth = null,
                 };
                 db.Incomes.Add(income);
                 db.SaveChanges();
@@ -157,6 +176,13 @@ namespace Breeze.Api.Incomes
                 income.Name = updatedIncome.Name;
                 income.Amount = updatedIncome.Amount;
                 income.Date = updatedIncome.Date;
+                income.IsRecurring = updatedIncome.IsRecurring;
+                income.RecurrenceInterval = NormalizeRecurrenceInterval(updatedIncome.RecurrenceInterval, updatedIncome.IsRecurring);
+                income.PaydayDayOfMonth = NormalizeDayOfMonth(updatedIncome.PaydayDayOfMonth, updatedIncome.Date.Day, updatedIncome.IsRecurring);
+                income.SourceType = "manual";
+                income.SourceTemplateId = null;
+                income.SourceOccurrenceDate = null;
+                income.GenerationMonth = null;
                 db.Incomes.Update(income);
                 db.SaveChanges();
                 return income.Id;
@@ -230,6 +256,35 @@ namespace Breeze.Api.Incomes
                 _logger.LogError(ex.Message);
                 return -5;
             }
+        }
+
+        private static string NormalizeRecurrenceInterval(string? recurrenceInterval, bool isRecurring)
+        {
+            if (!isRecurring)
+            {
+                return "none";
+            }
+
+            var normalized = recurrenceInterval?.Trim().ToLowerInvariant();
+            return normalized is "weekly" or "biweekly" or "monthly" or "quarterly" or "yearly" ? normalized : "monthly";
+        }
+
+        private static int? NormalizeDayOfMonth(int? day, int fallbackDay, bool isRecurring)
+        {
+            if (!isRecurring)
+            {
+                return null;
+            }
+
+            // Day-of-month is only used for monthly recurrence.
+            // Weekly/biweekly use the anchor date in Date.
+            if (day is null)
+            {
+                return null;
+            }
+
+            var dayToUse = day ?? fallbackDay;
+            return Math.Clamp(dayToUse, 1, 31);
         }
     }
 }

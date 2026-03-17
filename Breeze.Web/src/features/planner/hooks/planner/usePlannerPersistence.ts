@@ -44,8 +44,8 @@ interface UsePlannerPersistenceParams {
 	assetFinanceDetailsByAccountId: Record<string, AssetFinanceDetails>
 	setDesiredInvestmentAmount: Dispatch<SetStateAction<number>>
 	setMonthlyExpenses: Dispatch<SetStateAction<number>>
-	setInflationRate: Dispatch<SetStateAction<number>>
-	setSafeWithdrawalRate: Dispatch<SetStateAction<number>>
+	setInflationRate: (nextInflationRate: number) => void
+	setSafeWithdrawalRate: (nextSafeWithdrawalRate: number) => void
 	setPeople: Dispatch<SetStateAction<PlannerPerson[]>>
 	setAccounts: Dispatch<SetStateAction<PlannerAccount[]>>
 	setAssetFinanceDetailsByAccountId: Dispatch<SetStateAction<Record<string, AssetFinanceDetails>>>
@@ -95,6 +95,12 @@ export const usePlannerPersistence = ({
 		const hasExistingPlannerData = Boolean(plannerData && (plannerData.id > 0 || plannerData.people.length > 0 || plannerData.accounts.length > 0))
 
 		if (hasExistingPlannerData && plannerData) {
+			const hydratedDesiredInvestmentAmount = clamp(plannerData.desiredInvestmentAmount)
+			const hydratedMonthlyExpenses = clamp(plannerData.monthlyExpenses)
+			const nextDesiredInvestmentAmount =
+				hydratedDesiredInvestmentAmount > 0 ? hydratedDesiredInvestmentAmount : plannerConstants.PLANNER_DEFAULT_DESIRED_INVESTMENT_AMOUNT
+			const nextMonthlyExpenses = hydratedMonthlyExpenses > 0 ? hydratedMonthlyExpenses : plannerConstants.PLANNER_DEFAULT_MONTHLY_EXPENSES
+
 			const mappedPeople: PlannerPerson[] = plannerData.people.map((person) => {
 				const personType: PersonType = person.personType === 'spouse' ? 'spouse' : 'self'
 				const bonusMode = normalizeBonusMode(person.bonusMode)
@@ -136,10 +142,10 @@ export const usePlannerPersistence = ({
 				}
 			})
 
-			setDesiredInvestmentAmount(clamp(plannerData.desiredInvestmentAmount))
-			setMonthlyExpenses(clamp(plannerData.monthlyExpenses))
-			setInflationRate(plannerData.inflationRate)
-			setSafeWithdrawalRate(clamp(plannerData.safeWithdrawalRate, plannerConstants.PLANNER_SAFE_WITHDRAWAL_RATE_MIN))
+			setDesiredInvestmentAmount(nextDesiredInvestmentAmount)
+			setMonthlyExpenses(nextMonthlyExpenses)
+			// Inflation and SWR are user preference values from CurrentUser context.
+			// Do not overwrite them from planner payload hydration.
 
 			if (mappedPeople.length > 0) {
 				setPeople(mappedPeople)
@@ -184,10 +190,10 @@ export const usePlannerPersistence = ({
 
 			lastSavedPayloadRef.current = JSON.stringify(
 				createPlannerPayload(
-					clamp(plannerData.desiredInvestmentAmount),
-					clamp(plannerData.monthlyExpenses),
-					plannerData.inflationRate,
-					clamp(plannerData.safeWithdrawalRate, plannerConstants.PLANNER_SAFE_WITHDRAWAL_RATE_MIN),
+					nextDesiredInvestmentAmount,
+					nextMonthlyExpenses,
+					inflationRate,
+					safeWithdrawalRate,
 					mappedPeople.length > 0 ? mappedPeople : people,
 					mappedAccounts.length > 0 ? mappedAccounts : accounts,
 					assetFinanceDetailsByAccountId

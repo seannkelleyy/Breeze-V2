@@ -1,8 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { type ReactNode, useEffect, useMemo, useState } from 'react'
 
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
-import { usePlannerPageContext } from '@/features/planner/context'
+import { usePlannerPeople } from '@/features/planner/hooks'
+import * as plannerConstants from '@/lib/constants'
+import type { BonusMode } from '@/lib/planner/types'
+import { useCurrentUser } from '@/shared/breezeAuthButton'
 import { FormattedNumberInput } from '@/shared/form/FormattedNumberInput'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
@@ -10,35 +13,16 @@ import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 
-type BonusMode = 'dollars' | 'salary-percent'
-
-type PlannerPersonLike = {
-	id: string
-	type: 'self' | 'spouse'
-	name: string
-	birthday: string
-	retirementAge: number
-	annualSalary: number
-	bonusMode: BonusMode
-	annualBonus: number
-	incomeGrowthRate: number
+export type PeopleCardProps = {
+	collapsed: boolean
+	toggleControl: ReactNode
 }
 
-export type PeopleCardContextValue = {
-	people: PlannerPersonLike[]
-	hasSpouse: boolean
-	currentAge: number
-	targetAge: number
-	bonusModeOptions: ReadonlyArray<{ value: BonusMode; label: string }>
-	updatePerson: (id: string, updater: (person: PlannerPersonLike) => PlannerPersonLike) => void
-	removeSpouse: () => void
-	addSpouse: () => void
-}
-
-export const PeopleCard = () => {
-	const { peopleCard, sectionUi } = usePlannerPageContext()
-	const { collapsed, toggleControl } = sectionUi.people
-	const { people, hasSpouse, currentAge, targetAge, bonusModeOptions, updatePerson, removeSpouse, addSpouse } = peopleCard
+export const PeopleCard = ({ collapsed, toggleControl }: PeopleCardProps) => {
+	const { plannerSummary } = useCurrentUser()
+	const { people, hasSpouse, currentAge, updatePerson, removeSpouse, addSpouse } = usePlannerPeople()
+	const bonusModeOptions = plannerConstants.PLANNER_BONUS_MODE_OPTIONS
+	const targetAge = plannerSummary?.targetAge ?? currentAge
 	const [activePersonIndex, setActivePersonIndex] = useState(0)
 	const activePerson = people[activePersonIndex]
 	const activePersonLabel = useMemo(() => {

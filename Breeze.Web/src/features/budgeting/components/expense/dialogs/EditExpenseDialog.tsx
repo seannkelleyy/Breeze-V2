@@ -30,8 +30,12 @@ export const EditExpenseDialog = ({ existingExpense, children }: EditExpenseDial
 		resolver: zodResolver(expenseFormSchema),
 		defaultValues: {
 			...existingExpense,
+			recurrenceInterval: existingExpense.recurrenceInterval ?? 'none',
+			dueDayOfMonth: existingExpense.dueDayOfMonth ?? new Date(existingExpense.date).getDate(),
 		},
 	})
+
+	const recurrenceInterval = form.watch('recurrenceInterval') ?? 'none'
 
 	const patchMutation = usePatchExpense({
 		onSettled: () => {
@@ -58,6 +62,8 @@ export const EditExpenseDialog = ({ existingExpense, children }: EditExpenseDial
 				...values,
 				id: existingExpense.id,
 				userId,
+				isRecurring: values.recurrenceInterval !== 'none',
+				dueDayOfMonth: values.recurrenceInterval === 'none' ? null : (values.dueDayOfMonth ?? new Date(values.date).getDate()),
 			},
 		})
 	}
@@ -80,6 +86,23 @@ export const EditExpenseDialog = ({ existingExpense, children }: EditExpenseDial
 				}
 			/>
 			<FormInputField form={form} name="amount" label="Amount" type="number" placeholder="0.00" />
+			<FormSelectField
+				form={form}
+				name="recurrenceInterval"
+				label="Schedule"
+				parseAsNumber={false}
+				options={[
+					{ value: 'none', label: 'One-time expense' },
+					{ value: 'weekly', label: 'Weekly' },
+					{ value: 'biweekly', label: 'Biweekly' },
+					{ value: 'monthly', label: 'Monthly' },
+					{ value: 'quarterly', label: 'Quarterly' },
+					{ value: 'yearly', label: 'Yearly' },
+				]}
+			/>
+			{recurrenceInterval !== 'none' ? (
+				<FormInputField form={form} name="dueDayOfMonth" label="Due Day (Day of Month)" type="number" placeholder="1-31" />
+			) : null}
 			<FormInputField form={form} name="date" label="Date" type="date" placeholder="YYYY-MM-DD" />
 		</>
 	)

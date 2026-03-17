@@ -17,6 +17,9 @@ interface BreezeFormDialogProps<TFormValues extends FieldValues> {
 	onSubmit: (values: TFormValues) => void
 	inputFields: ReactNode
 	destructiveElements?: ReactNode
+	dialogContentClassName?: string
+	footerClassName?: string
+	disableSubmitUntilValid?: boolean
 }
 /**
  * Reusable form dialog component that integrates with react-hook-form and BreezeDialog.
@@ -39,6 +42,9 @@ export const BreezeFormDialog = <TFormValues extends FieldValues>({
 	onSubmit,
 	inputFields,
 	destructiveElements,
+	dialogContentClassName,
+	footerClassName,
+	disableSubmitUntilValid = true,
 }: BreezeFormDialogProps<TFormValues>) => {
 	const [open, setOpen] = useState<boolean>(false)
 
@@ -54,11 +60,18 @@ export const BreezeFormDialog = <TFormValues extends FieldValues>({
 	}
 
 	return (
-		<BreezeDialog dialogTrigger={dialogTrigger} title={title} description={description} open={open} onOpenChange={setOpen}>
+		<BreezeDialog
+			dialogTrigger={dialogTrigger}
+			title={title}
+			description={description}
+			open={open}
+			onOpenChange={setOpen}
+			dialogContentClassName={dialogContentClassName}
+		>
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-2">
+				<form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
 					{inputFields}
-					<DialogFooter className="flex flex-row gap-2 items-center justify-center w-full">
+					<DialogFooter className={footerClassName ?? 'flex flex-row gap-2 items-center justify-center w-full'}>
 						{destructiveElements ? (
 							destructiveElements
 						) : (
@@ -66,7 +79,7 @@ export const BreezeFormDialog = <TFormValues extends FieldValues>({
 								Cancel
 							</Button>
 						)}
-						<Button type="submit" disabled={!form.formState.isValid || form.formState.isSubmitting}>
+						<Button type="submit" disabled={form.formState.isSubmitting || (disableSubmitUntilValid && !form.formState.isValid)}>
 							{form.formState.isSubmitting ? 'Saving...' : `Save ${itemType}`}
 						</Button>
 					</DialogFooter>

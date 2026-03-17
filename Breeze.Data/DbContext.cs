@@ -14,6 +14,9 @@ namespace Breeze.Data
         public DbSet<PlannerProfile> PlannerProfiles { get; set; }
         public DbSet<PlannerPerson> PlannerPeople { get; set; }
         public DbSet<PlannerAccount> PlannerAccounts { get; set; }
+        public DbSet<UserPreference> UserPreferences { get; set; }
+        public DbSet<RecurringIncomeTemplate> RecurringIncomeTemplates { get; set; }
+        public DbSet<RecurringCategoryTemplate> RecurringCategoryTemplates { get; set; }
 
         public BreezeContext(DbContextOptions<BreezeContext> options) : base
             (options)
@@ -36,6 +39,9 @@ namespace Breeze.Data
             modelBuilder.ApplyConfiguration(new PlannerProfileConfiguration());
             modelBuilder.ApplyConfiguration(new PlannerPersonConfiguration());
             modelBuilder.ApplyConfiguration(new PlannerAccountConfiguration());
+            modelBuilder.ApplyConfiguration(new UserPreferenceConfiguration());
+            modelBuilder.ApplyConfiguration(new RecurringIncomeTemplateConfiguration());
+            modelBuilder.ApplyConfiguration(new RecurringCategoryTemplateConfiguration());
         }
     }
 }

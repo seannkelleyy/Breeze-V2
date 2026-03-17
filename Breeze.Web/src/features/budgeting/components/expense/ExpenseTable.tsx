@@ -34,6 +34,14 @@ export const ExpensesTable = () => {
 	const [activeCategory, setActiveCategory] = React.useState('')
 	const [nameFilter, setNameFilter] = React.useState('')
 	const { categories, expenses } = useBudgetContext()
+	const recurrenceLabelByInterval: Record<string, string> = {
+		none: 'One-time',
+		weekly: 'Weekly',
+		biweekly: 'Biweekly',
+		monthly: 'Monthly',
+		quarterly: 'Quarterly',
+		yearly: 'Yearly',
+	}
 
 	const columns = React.useMemo<ColumnDef<Expense>[]>(
 		() => [
@@ -110,8 +118,21 @@ export const ExpensesTable = () => {
 					return category ? category.name : 'Unknown'
 				},
 			},
+			{
+				id: 'schedule',
+				header: 'Schedule',
+				cell: ({ row }) => {
+					const recurrenceInterval = row.original.recurrenceInterval ?? 'none'
+					if (recurrenceInterval === 'none') {
+						return 'One-time'
+					}
+
+					const dueDay = row.original.dueDayOfMonth
+					return `${recurrenceLabelByInterval[recurrenceInterval] ?? 'Recurring'}${dueDay ? ` - day ${dueDay}` : ''}`
+				},
+			},
 		],
-		[categories]
+		[categories, recurrenceLabelByInterval]
 	)
 
 	const filteredExpenses = React.useMemo(() => {

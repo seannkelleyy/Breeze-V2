@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 
@@ -9,6 +11,7 @@ import { useCurrentUser } from '@/shared/breezeAuthButton'
 import { DeleteConfirmationDialog } from '@/shared/deleteConfirmation/DeleteConfirmationDialog'
 import { BreezeFormDialog } from '@/shared/dialog/BreezeFormDialog'
 import { FormInputField } from '@/shared/form/FormInputField'
+import { FormSelectField } from '@/shared/form/FormSelectField'
 
 type EditIncomeDialogProps = {
 	existingIncome: Income
@@ -29,8 +32,18 @@ export const EditIncomeDialog = ({ existingIncome, children }: EditIncomeDialogP
 		resolver: zodResolver(incomeFormSchema),
 		defaultValues: {
 			...existingIncome,
+			recurrenceInterval: existingIncome.recurrenceInterval ?? 'none',
+			paydayDayOfMonth: existingIncome.paydayDayOfMonth ?? new Date(existingIncome.date).getDate(),
 		},
 	})
+
+	const recurrenceInterval = form.watch('recurrenceInterval') ?? 'none'
+
+	useEffect(() => {
+		if (!['monthly', 'quarterly', 'yearly'].includes(recurrenceInterval)) {
+			form.setValue('paydayDayOfMonth', null, { shouldValidate: true })
+		}
+	}, [form, recurrenceInterval])
 
 	const patchMutation = usePatchIncome({
 		onSettled: () => {
@@ -48,6 +61,11 @@ export const EditIncomeDialog = ({ existingIncome, children }: EditIncomeDialogP
 
 	const onSubmit = (values: Income) => {
 		if (!userId || !budget?.id) return
+		const fallbackPayday = new Date(values.date).getDate()
+		const normalizedMonthlyPayday =
+			typeof values.paydayDayOfMonth === 'number' && values.paydayDayOfMonth >= 1 && values.paydayDayOfMonth <= 31
+				? values.paydayDayOfMonth
+				: fallbackPayday
 
 		patchMutation.mutate({
 			income: {
@@ -55,6 +73,8 @@ export const EditIncomeDialog = ({ existingIncome, children }: EditIncomeDialogP
 				id: existingIncome.id,
 				userId,
 				budgetId: budget.id,
+				isRecurring: values.recurrenceInterval !== 'none',
+				paydayDayOfMonth: ['monthly', 'quarterly', 'yearly'].includes(values.recurrenceInterval ?? 'none') ? normalizedMonthlyPayday : null,
 			},
 		})
 	}
@@ -65,6 +85,26 @@ export const EditIncomeDialog = ({ existingIncome, children }: EditIncomeDialogP
 		<>
 			<FormInputField form={form} name="name" label="Name" placeholder="e.g., Paycheck" />
 			<FormInputField form={form} name="amount" label="Amount" type="number" placeholder="0.00" />
+			<FormSelectField
+				form={form}
+				name="recurrenceInterval"
+				label="Pay Interval"
+				parseAsNumber={false}
+				options={[
+					{ value: 'none', label: 'One-time income' },
+					{ value: 'weekly', label: 'Weekly' },
+					{ value: 'biweekly', label: 'Biweekly' },
+					{ value: 'monthly', label: 'Monthly' },
+					{ value: 'quarterly', label: 'Quarterly' },
+					{ value: 'yearly', label: 'Yearly' },
+				]}
+			/>
+			{['monthly', 'quarterly', 'yearly'].includes(recurrenceInterval) ? (
+				<FormInputField form={form} name="paydayDayOfMonth" label="Payday (Day of Month)" type="number" placeholder="1-31" />
+			) : null}
+			{recurrenceInterval === 'weekly' || recurrenceInterval === 'biweekly' ? (
+				<p className="text-sm text-muted-foreground">Date is your pay anchor (for example, your first Thursday paycheck).</p>
+			) : null}
 			<FormInputField form={form} name="date" label="Date" type="date" placeholder="YYYY-MM-DD" />
 		</>
 	)

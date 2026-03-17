@@ -1,6 +1,9 @@
+import type { ReactNode } from 'react'
+
 import { Line } from 'recharts'
 
-import { usePlannerPageContext } from '@/features/planner/context'
+import { formatCurrencyWithCode } from '@/features/planner/lib/plannerMath'
+import { useCurrentUser } from '@/shared/breezeAuthButton'
 import BreezeLineChart from '@/shared/breezeChart/BreezeLineChart'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
 import type { ChartConfig } from '@/shared/ui/chart'
@@ -12,20 +15,28 @@ type ProjectionRow = {
 	[key: `account-${number}`]: number
 }
 
-export type ProjectionChartCardContextValue = {
+export type ProjectionChartCardProps = {
+	collapsed: boolean
+	toggleControl: ReactNode
 	currentAge: number
-	targetAge: number
 	chartConfig: ChartConfig
 	projectionRows: ProjectionRow[]
 	accounts: Array<{ id: string; name: string }>
 	accountLineColors: string[]
-	formatCurrency: (value: number) => string
 }
 
-export const ProjectionChartCard = () => {
-	const { projectionChartCard, sectionUi } = usePlannerPageContext()
-	const { collapsed, toggleControl } = sectionUi.projectionChart
-	const { currentAge, targetAge, chartConfig, projectionRows, accounts, accountLineColors, formatCurrency } = projectionChartCard
+export const ProjectionChartCard = ({
+	collapsed,
+	toggleControl,
+	currentAge,
+	chartConfig,
+	projectionRows,
+	accounts,
+	accountLineColors,
+}: ProjectionChartCardProps) => {
+	const { currencyCode, plannerSummary } = useCurrentUser()
+	const targetAge = plannerSummary?.targetAge ?? currentAge
+	const formatCurrency = (value: number) => formatCurrencyWithCode(value, currencyCode)
 	return (
 		<Card>
 			<CardHeader className="flex flex-row items-start justify-between gap-2">

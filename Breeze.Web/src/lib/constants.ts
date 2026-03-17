@@ -39,7 +39,15 @@ export const PLANNER_RETIREMENT_METHOD_OPTIONS = [
 ] as const
 export const PLANNER_DEFAULT_RETIREMENT_METHOD = 'target-amount'
 export const PLANNER_DEFAULT_INCOME_REPLACEMENT_RATE = 80
+export const PLANNER_DEFAULT_NET_INCOME_FACTOR = 0.8
+export const PLANNER_DEFAULT_ANNUAL_EXTRA_EXPENSE_BUFFER = 15000
+export const PLANNER_DEFAULT_FIRE_PROJECTION_RATE = 7
 export const PLANNER_DEFAULT_USE_INFLATION_ADJUSTED_VALUES = true
+export const PLANNER_DEFAULT_RETURN_DISPLAY_MODE = 'real'
+export const PLANNER_RETURN_DISPLAY_MODE_OPTIONS = [
+	{ value: 'real', label: 'Real (Inflation-Adjusted)' },
+	{ value: 'nominal', label: 'Nominal (Future Dollars)' },
+] as const
 
 export const PLANNER_ACCOUNT_RATE_PROFILE_OPTIONS = [
 	{ value: 'none', label: 'None (0.0%)' },
@@ -64,6 +72,12 @@ export const PLANNER_FIRE_LIFESTYLE_OPTIONS = [
 	{ label: 'Standard FIRE', multiplier: 1.0 },
 	{ label: 'Comfortable', multiplier: 1.2 },
 	{ label: 'Fat FIRE', multiplier: 1.5 },
+] as const
+
+export const PLANNER_FINANCIAL_MATH_SCENARIOS = [
+	{ label: 'Minimum', spendMultiplier: 1 },
+	{ label: 'High Quality', spendMultiplier: 2 },
+	{ label: 'Luxury', spendMultiplier: 3 },
 ] as const
 
 export const PLANNER_DEFAULT_FIRE_LIFESTYLE_INDEX = 2

@@ -48,6 +48,9 @@ namespace Breeze.Api.Expenses
                         Date = expense.Date,
                         CategoryId = expense.CategoryId,
                         Amount = expense.Amount,
+                        IsRecurring = expense.IsRecurring,
+                        RecurrenceInterval = expense.RecurrenceInterval,
+                        DueDayOfMonth = expense.DueDayOfMonth,
                     }).First();
             }
             catch (Exception ex)
@@ -77,6 +80,9 @@ namespace Breeze.Api.Expenses
                         Date = expense.Date,
                         CategoryId = expense.CategoryId,
                         Amount = expense.Amount,
+                        IsRecurring = expense.IsRecurring,
+                        RecurrenceInterval = expense.RecurrenceInterval,
+                        DueDayOfMonth = expense.DueDayOfMonth,
                     })
                     .ToList();
             }
@@ -114,6 +120,9 @@ namespace Breeze.Api.Expenses
                         Date = expense.Date,
                         CategoryId = expense.CategoryId,
                         Amount = expense.Amount,
+                        IsRecurring = expense.IsRecurring,
+                        RecurrenceInterval = expense.RecurrenceInterval,
+                        DueDayOfMonth = expense.DueDayOfMonth,
                     })
                     .ToList();
             }
@@ -150,6 +159,9 @@ namespace Breeze.Api.Expenses
                     Date = newExpense.Date,
                     CategoryId = category.Id,
                     Amount = newExpense.Amount,
+                    IsRecurring = newExpense.IsRecurring,
+                    RecurrenceInterval = NormalizeRecurrenceInterval(newExpense.RecurrenceInterval, newExpense.IsRecurring),
+                    DueDayOfMonth = NormalizeDayOfMonth(newExpense.DueDayOfMonth, newExpense.Date.Day, newExpense.IsRecurring),
                 };
 
                 db.Expenses.Add(expense);
@@ -191,6 +203,9 @@ namespace Breeze.Api.Expenses
                 expense.Date = updatedExpense.Date;
                 expense.Amount = updatedExpense.Amount;
                 expense.CategoryId = updatedExpense.CategoryId;
+                expense.IsRecurring = updatedExpense.IsRecurring;
+                expense.RecurrenceInterval = NormalizeRecurrenceInterval(updatedExpense.RecurrenceInterval, updatedExpense.IsRecurring);
+                expense.DueDayOfMonth = NormalizeDayOfMonth(updatedExpense.DueDayOfMonth, updatedExpense.Date.Day, updatedExpense.IsRecurring);
 
                 db.Expenses.Update(expense);
                 db.SaveChanges();
@@ -201,6 +216,28 @@ namespace Breeze.Api.Expenses
                 _logger.LogError(ex.Message);
                 return -5;
             }
+        }
+
+        private static string NormalizeRecurrenceInterval(string? recurrenceInterval, bool isRecurring)
+        {
+            if (!isRecurring)
+            {
+                return "none";
+            }
+
+            var normalized = recurrenceInterval?.Trim().ToLowerInvariant();
+            return normalized is "weekly" or "biweekly" or "monthly" or "quarterly" or "yearly" ? normalized : "monthly";
+        }
+
+        private static int? NormalizeDayOfMonth(int? day, int fallbackDay, bool isRecurring)
+        {
+            if (!isRecurring)
+            {
+                return null;
+            }
+
+            var dayToUse = day ?? fallbackDay;
+            return Math.Clamp(dayToUse, 1, 31);
         }
 
         /// <summary>

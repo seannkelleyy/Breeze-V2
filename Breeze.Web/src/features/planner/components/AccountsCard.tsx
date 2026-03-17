@@ -1,10 +1,17 @@
-import { useEffect, useMemo, useState } from 'react'
+import { type ReactNode, useEffect, useMemo, useState } from 'react'
 
 import { ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react'
 
-import { usePlannerPageContext } from '@/features/planner/context'
-import type * as PlannerTypes from '@/lib/planner/types'
-import { FormattedNumberInput } from '@/shared/form/FormattedNumberInput'
+import { CombinedAssetLoanFields } from '@/features/planner/components/accounts/CombinedAssetLoanFields'
+import { HomeAccountFields } from '@/features/planner/components/accounts/HomeAccountFields'
+import { InvestmentAccountFields } from '@/features/planner/components/accounts/InvestmentAccountFields'
+import { LiabilityAccountFields } from '@/features/planner/components/accounts/LiabilityAccountFields'
+import { VehicleAccountFields } from '@/features/planner/components/accounts/VehicleAccountFields'
+import { usePlannerAccounts } from '@/features/planner/hooks'
+import { formatCurrencyWithCode } from '@/features/planner/lib/plannerMath'
+import * as plannerConstants from '@/lib/constants'
+import type { AccountOwner, AccountType, AssetFinanceDetails } from '@/lib/planner/types'
+import { useCurrentUser } from '@/shared/breezeAuthButton'
 import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
@@ -12,107 +19,30 @@ import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 
-type AccountOwner = PlannerTypes.AccountOwner
-type AccountRateProfile = PlannerTypes.AccountRateProfile
-type AccountType = PlannerTypes.AccountType
-type AssetFinanceDetails = PlannerTypes.AssetFinanceDetails
-type AssetFinanceSnapshot = PlannerTypes.AssetFinanceSnapshot
-type ContributionMode = PlannerTypes.ContributionMode
-type HomeGrowthProfile = PlannerTypes.HomeGrowthProfile
-type PlannerAccount = PlannerTypes.PlannerAccount
-type VehicleDepreciationProfile = PlannerTypes.VehicleDepreciationProfile
-
-type PlannerAccountLike = PlannerAccount
-
-type PlannerPersonLike = {
-	type: 'self' | 'spouse'
-	birthday: string
+export type AccountsCardProps = {
+	collapsed: boolean
+	toggleControl: ReactNode
 }
 
-type AssetFinanceDetailsLike = AssetFinanceDetails
-
-export type AccountsCardData = {
-	accounts: PlannerAccountLike[]
-	people: PlannerPersonLike[]
-	selfBirthday: string
-	hasSpouse: boolean
-	isIrsAccountsLoading: boolean
-	isIrsAccountsError: boolean
-	assetFinanceDetailsByAccountId: Record<string, AssetFinanceDetailsLike>
-	totalPlannedMonthlyEmployee: number
-	totalPlannedMonthlyMatch: number
-	totalPlannedMonthlyInvestment: number
-	selfAnnualIncome: number
-	spouseAnnualIncome: number
-}
-
-export type AccountsCardOptions = {
-	accountOwnerOptions: ReadonlyArray<{ value: AccountOwner; label: string }>
-	accountRateProfileOptions: ReadonlyArray<{ value: AccountRateProfile; label: string }>
-	accountTypeOptions: ReadonlyArray<{ value: AccountType; label: string }>
-	contributionModeOptions: ReadonlyArray<{ value: ContributionMode; label: string }>
-	liabilityContributionModeOptions: ReadonlyArray<{ value: ContributionMode; label: string }>
-	homeGrowthProfileOptions: ReadonlyArray<{ value: HomeGrowthProfile; label: string }>
-	vehicleDepreciationProfileOptions: ReadonlyArray<{ value: VehicleDepreciationProfile; label: string }>
-	defaultHomeGrowthProfile: HomeGrowthProfile
-	defaultVehicleDepreciationProfile: VehicleDepreciationProfile
-	defaultHomeAppreciationRate: number
-	defaultVehicleDepreciationRate: number
-}
-
-export type AccountsCardHelpers = {
-	formatCurrency: (value: number) => string
-	toIsoDate: (date: Date) => string
-	clamp: (value: number, min?: number) => number
-	isLiabilityAccountType: (accountType: AccountType) => boolean
-	isCombinedAssetType: (accountType: AccountType) => boolean
-	isNonContributingAccountType: (accountType: AccountType) => boolean
-	isDepreciatingAssetType: (accountType: AccountType) => boolean
-	isMoneyEqualWithinTolerance: (leftAmount: number, rightAmount: number) => boolean
-	isMoneyGreaterThanWithTolerance: (leftAmount: number, rightAmount: number) => boolean
-	getEmployeeMonthlyContribution: (account: PlannerAccountLike, selfAnnualIncome: number, spouseAnnualIncome: number) => number
-	getEmployerMatchMonthly: (account: PlannerAccountLike, selfAnnualIncome: number, spouseAnnualIncome: number) => number
-	getDisplayedRatePercent: (account: PlannerAccountLike) => number
-	getStoredAnnualRateFromInput: (account: PlannerAccountLike, value: number) => number
-	getAccountRateProfileFromAnnualRate: (annualRate: number) => AccountRateProfile
-	getAccountAnnualRateFromProfile: (profile: AccountRateProfile, currentAnnualRate: number) => number
-	getAgeFromBirthday: (birthday: string) => number
-	getSuggestedAnnualLimit: (accountType: AccountType, age: number, hasSpouse: boolean) => number
-	getAssetFinanceSnapshot: (details: AssetFinanceDetailsLike, asOf: Date) => AssetFinanceSnapshot
-	getHomeAnnualGrowthRate: (profile: HomeGrowthProfile | string | undefined, customAnnualRate: number) => number
-	getDefaultAssetFinanceDetails: (account: PlannerAccountLike) => AssetFinanceDetailsLike
-}
-
-export type AccountsCardActions = {
-	updateAccount: (id: string, updater: (account: PlannerAccountLike) => PlannerAccountLike) => void
-	updateAssetFinanceDetails: (accountId: string, updater: (details: AssetFinanceDetailsLike) => AssetFinanceDetailsLike) => void
-	setAssetFinanceDetailsByAccountId: (updater: (previous: Record<string, AssetFinanceDetailsLike>) => Record<string, AssetFinanceDetailsLike>) => void
-	removeAccount: (id: string) => void
-	maxOutAccount: (id: string) => void
-	addAccount: () => void
-	addLiability: () => void
-}
-
-export const AccountsCard = () => {
-	const { accountsCard, sectionUi } = usePlannerPageContext()
-	const { collapsed, toggleControl } = sectionUi.accounts
-	const { data, options, helpers, actions } = accountsCard
+export const AccountsCard = ({ collapsed, toggleControl }: AccountsCardProps) => {
+	const { currencyCode } = useCurrentUser()
+	const formatCurrency = (value: number) => formatCurrencyWithCode(value, currencyCode)
 	type AccountFilter = 'all' | 'assets' | 'liabilities' | 'tax-advantaged'
+	const [collapsedAccountIds, setCollapsedAccountIds] = useState<Record<string, boolean>>({})
+	const [accountFilter, setAccountFilter] = useState<AccountFilter>('all')
 	const {
-		accounts,
+		plannerAccounts,
+		assetFinanceDetailsByAccountId,
 		people,
-		selfBirthday,
 		hasSpouse,
+		selfBirthday,
+		selfAnnualIncome,
+		spouseAnnualIncome,
 		isIrsAccountsLoading,
 		isIrsAccountsError,
-		assetFinanceDetailsByAccountId,
 		totalPlannedMonthlyEmployee,
 		totalPlannedMonthlyMatch,
 		totalPlannedMonthlyInvestment,
-		selfAnnualIncome,
-		spouseAnnualIncome,
-	} = data
-	const {
 		accountOwnerOptions,
 		accountRateProfileOptions,
 		accountTypeOptions,
@@ -124,43 +54,39 @@ export const AccountsCard = () => {
 		defaultVehicleDepreciationProfile,
 		defaultHomeAppreciationRate,
 		defaultVehicleDepreciationRate,
-	} = options
-	const {
-		formatCurrency,
-		toIsoDate,
-		clamp,
 		isLiabilityAccountType,
 		isCombinedAssetType,
 		isNonContributingAccountType,
 		isDepreciatingAssetType,
-		isMoneyEqualWithinTolerance,
-		isMoneyGreaterThanWithTolerance,
 		getEmployeeMonthlyContribution,
 		getEmployerMatchMonthly,
-		getDisplayedRatePercent,
-		getStoredAnnualRateFromInput,
-		getAccountRateProfileFromAnnualRate,
-		getAccountAnnualRateFromProfile,
-		getAgeFromBirthday,
-		getSuggestedAnnualLimit,
+		getSuggestedAnnualLimitForAccount,
+		getDisplayedRateForAccount,
+		getStoredAnnualRateForInput,
+		getRateProfileFromAnnualRate,
+		getAnnualRateFromProfile,
 		getAssetFinanceSnapshot,
+		getDefaultAssetFinanceDetailsForAccount,
 		getHomeAnnualGrowthRate,
-		getDefaultAssetFinanceDetails,
-	} = helpers
-	const { updateAccount, updateAssetFinanceDetails, setAssetFinanceDetailsByAccountId, removeAccount, maxOutAccount, addAccount, addLiability } =
-		actions
-	const [collapsedAccountIds, setCollapsedAccountIds] = useState<Record<string, boolean>>({})
-	const [accountFilter, setAccountFilter] = useState<AccountFilter>('all')
+		getAgeFromBirthday,
+		toIsoDate,
+		updateAccount,
+		updateAssetFinanceDetails,
+		removeAccount,
+		addAccount,
+		addLiability,
+		setPlannerAssetFinanceDetailsByAccountId,
+	} = usePlannerAccounts()
 
 	useEffect(() => {
 		setCollapsedAccountIds((previous) => {
 			const next: Record<string, boolean> = {}
-			for (const account of accounts) {
+			for (const account of plannerAccounts) {
 				next[account.id] = previous[account.id] ?? false
 			}
 			return next
 		})
-	}, [accounts])
+	}, [plannerAccounts])
 
 	const toggleAccountCollapsed = (accountId: string) => {
 		setCollapsedAccountIds((previous) => ({ ...previous, [accountId]: !previous[accountId] }))
@@ -169,9 +95,9 @@ export const AccountsCard = () => {
 	const filteredAccounts = useMemo(() => {
 		switch (accountFilter) {
 			case 'assets':
-				return accounts.filter((account) => !isLiabilityAccountType(account.accountType))
+				return plannerAccounts.filter((account) => !isLiabilityAccountType(account.accountType))
 			case 'liabilities':
-				return accounts.filter((account) => {
+				return plannerAccounts.filter((account) => {
 					if (isLiabilityAccountType(account.accountType)) {
 						return true
 					}
@@ -183,12 +109,20 @@ export const AccountsCard = () => {
 					return assetFinanceDetailsByAccountId[account.id]?.hasLoan ?? false
 				})
 			case 'tax-advantaged':
-				return accounts.filter((account) => getSuggestedAnnualLimit(account.accountType, 40, hasSpouse) > 0)
+				return plannerAccounts.filter((account) => getSuggestedAnnualLimitForAccount(account.accountType, 40, hasSpouse) > 0)
 			case 'all':
 			default:
-				return accounts
+				return plannerAccounts
 		}
-	}, [accountFilter, accounts, assetFinanceDetailsByAccountId, getSuggestedAnnualLimit, hasSpouse, isCombinedAssetType, isLiabilityAccountType])
+	}, [
+		accountFilter,
+		plannerAccounts,
+		assetFinanceDetailsByAccountId,
+		getSuggestedAnnualLimitForAccount,
+		hasSpouse,
+		isCombinedAssetType,
+		isLiabilityAccountType,
+	])
 
 	return (
 		<Card>
@@ -241,12 +175,13 @@ export const AccountsCard = () => {
 							const assetFinanceSnapshot = isCombinedAsset && assetFinanceDetails ? getAssetFinanceSnapshot(assetFinanceDetails, new Date()) : null
 							const hidesContributionInputs = !isLiability && isNonContributingAccountType(account.accountType)
 							const usesDepreciationInput = isDepreciatingAssetType(account.accountType)
-							const selectedRateProfile = getAccountRateProfileFromAnnualRate(getDisplayedRatePercent(account))
+							const selectedRateProfile = getRateProfileFromAnnualRate(getDisplayedRateForAccount(account))
 							const employeeMonthly = getEmployeeMonthlyContribution(account, selfAnnualIncome, spouseAnnualIncome)
+							const employerMatchMonthly = getEmployerMatchMonthly(account, selfAnnualIncome, spouseAnnualIncome)
 							const employeeAnnual = employeeMonthly * 12
 							const ownerAge = getAgeFromBirthday((people.find((person) => person.type === account.owner)?.birthday ?? selfBirthday) || '')
-							const suggestedLimit = getSuggestedAnnualLimit(account.accountType, ownerAge, hasSpouse)
-							const isUsingIrsMaxContribution = suggestedLimit > 0 && isMoneyEqualWithinTolerance(employeeAnnual, suggestedLimit)
+							const suggestedLimit = getSuggestedAnnualLimitForAccount(account.accountType, ownerAge, hasSpouse)
+							const isUsingIrsMaxContribution = suggestedLimit > 0 && plannerConstants.isMoneyEqualWithinTolerance(employeeAnnual, suggestedLimit)
 							const modeOptions = isLiability ? liabilityContributionModeOptions : contributionModeOptions
 							const contributionInputLabel =
 								account.contributionMode === 'monthly'
@@ -260,6 +195,16 @@ export const AccountsCard = () => {
 										: isLiability
 											? 'Payment % of Salary'
 											: 'Contribution % of Salary'
+							const onUpdateAccount = (updater: (current: typeof account) => typeof account) => updateAccount(account.id, updater)
+							const onUpdateAssetFinanceDetails = (updater: (current: AssetFinanceDetails) => AssetFinanceDetails) =>
+								updateAssetFinanceDetails(account.id, updater)
+							const onSetContributionToIrsMax = () => {
+								onUpdateAccount((current) => ({
+									...current,
+									contributionMode: 'monthly',
+									contributionValue: suggestedLimit > 0 ? Number((suggestedLimit / 12).toFixed(2)) : current.contributionValue,
+								}))
+							}
 
 							return (
 								<div key={account.id} className="border rounded-md p-3 space-y-3 h-fit">
@@ -272,7 +217,7 @@ export const AccountsCard = () => {
 											<Button type="button" variant="ghost" size="icon" onClick={() => toggleAccountCollapsed(account.id)}>
 												{isAccountCollapsed ? <ChevronDown /> : <ChevronUp />}
 											</Button>
-											<Button variant="destructive" size="icon" onClick={() => removeAccount(account.id)} disabled={accounts.length === 1}>
+											<Button variant="destructive" size="icon" onClick={() => removeAccount(account.id)} disabled={plannerAccounts.length === 1}>
 												<Trash2 />
 											</Button>
 										</div>
@@ -284,16 +229,13 @@ export const AccountsCard = () => {
 									>
 										<div className="space-y-2">
 											<Label>Account Name</Label>
-											<Input
-												value={account.name}
-												onChange={(event) => updateAccount(account.id, (current) => ({ ...current, name: event.target.value }))}
-											/>
+											<Input value={account.name} onChange={(event) => onUpdateAccount((current) => ({ ...current, name: event.target.value }))} />
 										</div>
 										<div className="space-y-2">
 											<Label>Owner</Label>
 											<Select
 												value={account.owner}
-												onValueChange={(value) => updateAccount(account.id, (current) => ({ ...current, owner: value as AccountOwner }))}
+												onValueChange={(value) => onUpdateAccount((current) => ({ ...current, owner: value as AccountOwner }))}
 											>
 												<SelectTrigger>
 													<SelectValue placeholder="Select owner" />
@@ -315,7 +257,7 @@ export const AccountsCard = () => {
 													const selectedType = value as AccountType
 													const selectedTypeIsNonContributing = isNonContributingAccountType(selectedType)
 													const selectedTypeIsCombinedAsset = isCombinedAssetType(selectedType)
-													updateAccount(account.id, (current) => ({
+													onUpdateAccount((current) => ({
 														...current,
 														accountType: selectedType,
 														annualRate:
@@ -332,11 +274,11 @@ export const AccountsCard = () => {
 														employerMatchMaxPercentOfSalary: selectedType === '401k' ? current.employerMatchMaxPercentOfSalary : 0,
 													}))
 
-													setAssetFinanceDetailsByAccountId((prev) => {
+													setPlannerAssetFinanceDetailsByAccountId((prev) => {
 														const next = { ...prev }
 														if (selectedTypeIsCombinedAsset) {
 															if (!next[account.id]) {
-																next[account.id] = getDefaultAssetFinanceDetails({ ...account, accountType: selectedType })
+																next[account.id] = getDefaultAssetFinanceDetailsForAccount({ ...account, accountType: selectedType })
 															}
 														} else if (next[account.id]) {
 															delete next[account.id]
@@ -357,339 +299,66 @@ export const AccountsCard = () => {
 												</SelectContent>
 											</Select>
 										</div>
-										{!hidesContributionInputs ? (
-											<>
-												<div className="space-y-2">
-													<Label>{isLiability ? 'Payment Type' : 'Contribution Type'}</Label>
-													<Select
-														value={account.contributionMode}
-														onValueChange={(value) =>
-															updateAccount(account.id, (current) => ({ ...current, contributionMode: value as ContributionMode }))
-														}
-													>
-														<SelectTrigger>
-															<SelectValue placeholder={isLiability ? 'Select payment type' : 'Select contribution type'} />
-														</SelectTrigger>
-														<SelectContent>
-															{modeOptions.map((modeOption) => (
-																<SelectItem key={modeOption.value} value={modeOption.value}>
-																	{modeOption.label}
-																</SelectItem>
-															))}
-														</SelectContent>
-													</Select>
-												</div>
-												<div className="space-y-2">
-													<div className="flex items-center justify-between gap-2">
-														<Label>{contributionInputLabel}</Label>
-														{!isLiability ? (
-															<Button
-																type="button"
-																variant="outline"
-																size="sm"
-																onClick={() => maxOutAccount(account.id)}
-																disabled={suggestedLimit <= 0}
-															>
-																Max It Out
-															</Button>
-														) : null}
-													</div>
-													<FormattedNumberInput
-														value={account.contributionValue}
-														onValueChange={(value) => updateAccount(account.id, (current) => ({ ...current, contributionValue: value }))}
-														maxFractionDigits={2}
-													/>
-													{isUsingIrsMaxContribution ? <p className="text-xs text-success">Using IRS max contribution</p> : null}
-												</div>
-											</>
-										) : null}
-										{account.accountType === '401k' ? (
-											<>
-												<div className="space-y-2">
-													<Label>401(k) Match % of Contribution</Label>
-													<FormattedNumberInput
-														value={account.employerMatchRate}
-														onValueChange={(value) => updateAccount(account.id, (current) => ({ ...current, employerMatchRate: value }))}
-														maxFractionDigits={2}
-													/>
-												</div>
-												<div className="space-y-2">
-													<Label>401(k) Match Up To % of Salary</Label>
-													<FormattedNumberInput
-														value={account.employerMatchMaxPercentOfSalary}
-														onValueChange={(value) =>
-															updateAccount(account.id, (current) => ({ ...current, employerMatchMaxPercentOfSalary: value }))
-														}
-														maxFractionDigits={2}
-													/>
-												</div>
-											</>
-										) : null}
 										{!isCombinedAsset ? (
-											<>
-												<div className="space-y-2">
-													<Label>{isLiability ? 'Current Balance Owed' : 'Starting Balance'}</Label>
-													<FormattedNumberInput
-														value={account.startingBalance}
-														onValueChange={(value) => updateAccount(account.id, (current) => ({ ...current, startingBalance: value }))}
-														maxFractionDigits={0}
-													/>
-												</div>
-												<div className="space-y-2">
-													<Label>{isLiability ? 'Interest Profile' : 'Return Profile'}</Label>
-													<Select
-														value={selectedRateProfile}
-														onValueChange={(value) =>
-															updateAccount(account.id, (current) => ({
-																...current,
-																annualRate: getStoredAnnualRateFromInput(
-																	current,
-																	getAccountAnnualRateFromProfile(value as AccountRateProfile, getDisplayedRatePercent(current))
-																),
-															}))
-														}
-													>
-														<SelectTrigger>
-															<SelectValue placeholder="Select rate profile" />
-														</SelectTrigger>
-														<SelectContent>
-															{accountRateProfileOptions.map((option) => (
-																<SelectItem key={option.value} value={option.value}>
-																	{option.label}
-																</SelectItem>
-															))}
-														</SelectContent>
-													</Select>
-													{selectedRateProfile === 'custom' ? (
-														<div className="mt-2 space-y-2">
-															<Label>{usesDepreciationInput ? 'Custom Depreciation %' : isLiability ? 'Custom Interest %' : 'Custom Return %'}</Label>
-															<FormattedNumberInput
-																value={getDisplayedRatePercent(account)}
-																onValueChange={(value) =>
-																	updateAccount(account.id, (current) => ({ ...current, annualRate: getStoredAnnualRateFromInput(current, value) }))
-																}
-																maxFractionDigits={2}
-															/>
-														</div>
-													) : null}
-												</div>
-											</>
+											isLiability ? (
+												<LiabilityAccountFields
+													account={account}
+													contributionInputLabel={contributionInputLabel}
+													modeOptions={modeOptions}
+													accountRateProfileOptions={accountRateProfileOptions}
+													selectedRateProfile={selectedRateProfile}
+													usesDepreciationInput={usesDepreciationInput}
+													onUpdateAccount={onUpdateAccount}
+													onSetContributionToIrsMax={onSetContributionToIrsMax}
+													getDisplayedRateForAccount={getDisplayedRateForAccount}
+													getAnnualRateFromProfile={getAnnualRateFromProfile}
+													getStoredAnnualRateForInput={getStoredAnnualRateForInput}
+												/>
+											) : (
+												<InvestmentAccountFields
+													account={account}
+													hidesContributionInputs={hidesContributionInputs}
+													contributionInputLabel={contributionInputLabel}
+													modeOptions={modeOptions}
+													suggestedLimit={suggestedLimit}
+													isUsingIrsMaxContribution={isUsingIrsMaxContribution}
+													accountRateProfileOptions={accountRateProfileOptions}
+													selectedRateProfile={selectedRateProfile}
+													usesDepreciationInput={usesDepreciationInput}
+													onUpdateAccount={onUpdateAccount}
+													onSetContributionToIrsMax={onSetContributionToIrsMax}
+													getDisplayedRateForAccount={getDisplayedRateForAccount}
+													getAnnualRateFromProfile={getAnnualRateFromProfile}
+													getStoredAnnualRateForInput={getStoredAnnualRateForInput}
+												/>
+											)
 										) : (
 											<>
-												<div className="space-y-2">
-													<Label>Purchase Date</Label>
-													<Input
-														type="date"
-														value={assetFinanceDetails?.purchaseDate ?? toIsoDate(new Date())}
-														onChange={(event) =>
-															updateAssetFinanceDetails(account.id, (current) => ({ ...current, purchaseDate: event.target.value }))
-														}
+												{account.accountType === 'home' ? (
+													<HomeAccountFields
+														assetFinanceDetails={assetFinanceDetails}
+														defaultHomeGrowthProfile={defaultHomeGrowthProfile}
+														defaultHomeAppreciationRate={defaultHomeAppreciationRate}
+														homeGrowthProfileOptions={homeGrowthProfileOptions}
+														onUpdateAssetFinanceDetails={onUpdateAssetFinanceDetails}
+														toIsoDate={toIsoDate}
+														getHomeAnnualGrowthRate={getHomeAnnualGrowthRate}
 													/>
-												</div>
-												<div className="space-y-2">
-													<Label>Purchase Price</Label>
-													<FormattedNumberInput
-														value={assetFinanceDetails?.purchasePrice ?? clamp(account.startingBalance)}
-														onValueChange={(value) =>
-															updateAssetFinanceDetails(account.id, (current) => ({ ...current, purchasePrice: clamp(value) }))
-														}
-														maxFractionDigits={0}
+												) : (
+													<VehicleAccountFields
+														assetFinanceDetails={assetFinanceDetails}
+														defaultVehicleDepreciationProfile={defaultVehicleDepreciationProfile}
+														defaultVehicleDepreciationRate={defaultVehicleDepreciationRate}
+														vehicleDepreciationProfileOptions={vehicleDepreciationProfileOptions}
+														onUpdateAssetFinanceDetails={onUpdateAssetFinanceDetails}
+														toIsoDate={toIsoDate}
 													/>
-												</div>
-												<div className="space-y-2">
-													<Label>{account.accountType === 'home' ? 'Current Home Value' : 'Current Vehicle Value'}</Label>
-													<FormattedNumberInput
-														value={assetFinanceDetails?.currentValue ?? clamp(account.startingBalance)}
-														onValueChange={(value) =>
-															updateAssetFinanceDetails(account.id, (current) => ({ ...current, currentValue: clamp(value) }))
-														}
-														maxFractionDigits={0}
-													/>
-												</div>
-												<div className="space-y-2">
-													<Label>{account.accountType === 'home' ? 'Growth Model' : 'Depreciation Model'}</Label>
-													{account.accountType === 'home' ? (
-														<>
-															<Select
-																value={assetFinanceDetails?.homeGrowthProfile ?? defaultHomeGrowthProfile}
-																onValueChange={(value) =>
-																	updateAssetFinanceDetails(account.id, (current) => {
-																		const profile = value as HomeGrowthProfile
-																		const nextAnnualRate = getHomeAnnualGrowthRate(profile, current.annualChangeRate)
-																		return {
-																			...current,
-																			homeGrowthProfile: profile,
-																			annualChangeRate: nextAnnualRate,
-																		}
-																	})
-																}
-															>
-																<SelectTrigger>
-																	<SelectValue placeholder="Select growth model" />
-																</SelectTrigger>
-																<SelectContent>
-																	{homeGrowthProfileOptions.map((option) => (
-																		<SelectItem key={option.value} value={option.value}>
-																			{option.label}
-																		</SelectItem>
-																	))}
-																</SelectContent>
-															</Select>
-															{assetFinanceDetails?.homeGrowthProfile === 'custom' ? (
-																<div className="mt-2">
-																	<Label>Custom Appreciation %</Label>
-																	<FormattedNumberInput
-																		value={assetFinanceDetails?.annualChangeRate ?? defaultHomeAppreciationRate}
-																		onValueChange={(value) =>
-																			updateAssetFinanceDetails(account.id, (current) => ({ ...current, annualChangeRate: value }))
-																		}
-																		maxFractionDigits={2}
-																	/>
-																</div>
-															) : null}
-														</>
-													) : (
-														<>
-															<Select
-																value={assetFinanceDetails?.vehicleDepreciationProfile ?? defaultVehicleDepreciationProfile}
-																onValueChange={(value) =>
-																	updateAssetFinanceDetails(account.id, (current) => ({
-																		...current,
-																		vehicleDepreciationProfile: value as VehicleDepreciationProfile,
-																	}))
-																}
-															>
-																<SelectTrigger>
-																	<SelectValue placeholder="Select depreciation model" />
-																</SelectTrigger>
-																<SelectContent>
-																	{vehicleDepreciationProfileOptions.map((option) => (
-																		<SelectItem key={option.value} value={option.value}>
-																			{option.label}
-																		</SelectItem>
-																	))}
-																</SelectContent>
-															</Select>
-															{assetFinanceDetails?.vehicleDepreciationProfile === 'custom' ? (
-																<div className="mt-2">
-																	<Label>Custom Depreciation %</Label>
-																	<FormattedNumberInput
-																		value={Math.abs(Math.min(0, assetFinanceDetails?.annualChangeRate ?? -defaultVehicleDepreciationRate))}
-																		onValueChange={(value) =>
-																			updateAssetFinanceDetails(account.id, (current) => ({ ...current, annualChangeRate: -clamp(value) }))
-																		}
-																		maxFractionDigits={2}
-																	/>
-																</div>
-															) : null}
-														</>
-													)}
-												</div>
-												<div className="space-y-2">
-													<Label>Still Have a Loan?</Label>
-													<Select
-														value={(assetFinanceDetails?.hasLoan ?? false) ? 'yes' : 'no'}
-														onValueChange={(value) =>
-															updateAssetFinanceDetails(account.id, (current) => ({
-																...current,
-																hasLoan: value === 'yes',
-																originalLoanAmount:
-																	value === 'yes' && clamp(current.originalLoanAmount) <= 0
-																		? clamp(current.currentLoanBalance)
-																		: current.originalLoanAmount,
-															}))
-														}
-													>
-														<SelectTrigger>
-															<SelectValue placeholder="Select" />
-														</SelectTrigger>
-														<SelectContent>
-															<SelectItem value="yes">Yes</SelectItem>
-															<SelectItem value="no">No</SelectItem>
-														</SelectContent>
-													</Select>
-												</div>
-												{assetFinanceDetails?.hasLoan ? (
-													<>
-														<div className="space-y-2">
-															<Label>Loan Interest Rate %</Label>
-															<FormattedNumberInput
-																value={assetFinanceDetails.loanInterestRate}
-																onValueChange={(value) =>
-																	updateAssetFinanceDetails(account.id, (current) => ({ ...current, loanInterestRate: value }))
-																}
-																maxFractionDigits={2}
-															/>
-														</div>
-														<div className="space-y-2">
-															<Label>Original Loan Amount</Label>
-															<FormattedNumberInput
-																value={assetFinanceDetails.originalLoanAmount}
-																onValueChange={(value) =>
-																	updateAssetFinanceDetails(account.id, (current) => ({ ...current, originalLoanAmount: clamp(value) }))
-																}
-																maxFractionDigits={0}
-															/>
-														</div>
-														<div className="space-y-2">
-															<Label>Principal + Interest Payment (Monthly)</Label>
-															<FormattedNumberInput
-																value={assetFinanceDetails.loanMonthlyPayment}
-																onValueChange={(value) =>
-																	updateAssetFinanceDetails(account.id, (current) => ({ ...current, loanMonthlyPayment: clamp(value) }))
-																}
-																maxFractionDigits={2}
-															/>
-														</div>
-														<div className="space-y-2">
-															<Label>Loan Term (Years)</Label>
-															<FormattedNumberInput
-																value={assetFinanceDetails.loanTermYears}
-																onValueChange={(value) =>
-																	updateAssetFinanceDetails(account.id, (current) => ({ ...current, loanTermYears: clamp(value) }))
-																}
-																maxFractionDigits={0}
-															/>
-														</div>
-														<div className="space-y-2">
-															<Label>Loan Start Date</Label>
-															<Input
-																type="date"
-																value={assetFinanceDetails.loanStartDate}
-																onChange={(event) =>
-																	updateAssetFinanceDetails(account.id, (current) => ({ ...current, loanStartDate: event.target.value }))
-																}
-															/>
-														</div>
-														<div className="space-y-2">
-															<Label>Current Loan Amount</Label>
-															<FormattedNumberInput
-																value={assetFinanceDetails.currentLoanBalance}
-																onValueChange={(value) =>
-																	updateAssetFinanceDetails(account.id, (current) => ({ ...current, currentLoanBalance: clamp(value) }))
-																}
-																maxFractionDigits={0}
-															/>
-														</div>
-														{assetFinanceDetails.originalLoanAmount > 0 ? (
-															<div className="md:col-span-2 rounded-md border p-2 text-xs text-muted-foreground">
-																<p>
-																	Principal paid to date:{' '}
-																	{formatCurrency(Math.max(0, assetFinanceDetails.originalLoanAmount - assetFinanceDetails.currentLoanBalance))}
-																</p>
-																<p>
-																	Loan paid off:{' '}
-																	{(
-																		(Math.max(0, assetFinanceDetails.originalLoanAmount - assetFinanceDetails.currentLoanBalance) /
-																			assetFinanceDetails.originalLoanAmount) *
-																		100
-																	).toFixed(1)}
-																	%
-																</p>
-															</div>
-														) : null}
-													</>
-												) : null}
+												)}
+												<CombinedAssetLoanFields
+													assetFinanceDetails={assetFinanceDetails}
+													onUpdateAssetFinanceDetails={onUpdateAssetFinanceDetails}
+													formatCurrency={formatCurrency}
+												/>
 											</>
 										)}
 									</div>
@@ -697,9 +366,7 @@ export const AccountsCard = () => {
 										{isAccountCollapsed ? (
 											<p>
 												{isLiability ? 'Payment' : 'Employee'}: {formatCurrency(employeeMonthly)}/mo
-												{account.accountType === '401k'
-													? `, Match: ${formatCurrency(getEmployerMatchMonthly(account, selfAnnualIncome, spouseAnnualIncome))}/mo`
-													: ''}
+												{account.accountType === '401k' ? `, Match: ${formatCurrency(employerMatchMonthly)}/mo` : ''}
 												{assetFinanceSnapshot
 													? `, Equity: ${formatCurrency(assetFinanceSnapshot.equity)}`
 													: `, Balance: ${formatCurrency(account.startingBalance)}`}
@@ -719,7 +386,11 @@ export const AccountsCard = () => {
 													IRS annual limit for age {ownerAge}: {formatCurrency(suggestedLimit)}
 												</p>
 												{suggestedLimit > 0 ? (
-													<span className={isMoneyGreaterThanWithTolerance(employeeAnnual, suggestedLimit) ? 'text-destructive font-medium' : ''}>
+													<span
+														className={
+															plannerConstants.isMoneyGreaterThanWithTolerance(employeeAnnual, suggestedLimit) ? 'text-destructive font-medium' : ''
+														}
+													>
 														Annual contribution {formatCurrency(employeeAnnual)} / limit {formatCurrency(suggestedLimit)}
 													</span>
 												) : (
@@ -745,9 +416,7 @@ export const AccountsCard = () => {
 											</span>
 										) : null}
 										{account.accountType === '401k' ? (
-											<span className="ml-2">
-												Employer match applied monthly: {formatCurrency(getEmployerMatchMonthly(account, selfAnnualIncome, spouseAnnualIncome))}
-											</span>
+											<span className="ml-2">Employer match applied monthly: {formatCurrency(employerMatchMonthly)}</span>
 										) : null}
 									</div>
 								</div>

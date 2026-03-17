@@ -1,4 +1,7 @@
-import { usePlannerPageContext } from '@/features/planner/context'
+import type { ReactNode } from 'react'
+
+import { formatCurrencyWithCode } from '@/features/planner/lib/plannerMath'
+import { useCurrentUser } from '@/shared/breezeAuthButton'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
 
@@ -27,20 +30,24 @@ export type ProjectionTablesContextValue = {
 	data: {
 		projectionRows: ProjectionRow[]
 		accountBreakdownRows: AccountBreakdownRow[]
-		targetAge: number
-	}
-	helpers: {
-		formatCurrency: (value: number) => string
 	}
 }
 
-export const ProjectionTables = () => {
-	const { projectionTables, sectionUi } = usePlannerPageContext()
-	const sections = sectionUi.projectionTables
-	const { data, helpers } = projectionTables
+export type ProjectionTablesProps = ProjectionTablesContextValue & {
+	sections: {
+		yearlyCollapsed: boolean
+		yearlyToggleControl: ReactNode
+		accountBreakdownCollapsed: boolean
+		accountBreakdownToggleControl: ReactNode
+	}
+}
+
+export const ProjectionTables = ({ sections, data }: ProjectionTablesProps) => {
+	const { currencyCode, plannerSummary } = useCurrentUser()
+	const formatCurrency = (value: number) => formatCurrencyWithCode(value, currencyCode)
 	const { yearlyCollapsed, yearlyToggleControl, accountBreakdownCollapsed, accountBreakdownToggleControl } = sections
-	const { projectionRows, accountBreakdownRows, targetAge } = data
-	const { formatCurrency } = helpers
+	const { projectionRows, accountBreakdownRows } = data
+	const targetAge = plannerSummary?.targetAge ?? 0
 
 	return (
 		<div className="grid grid-cols-1 xl:grid-cols-2 gap-4">

@@ -19,5 +19,10 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
         modelBuilder
             .Property(c => c.Allocation)
             .HasPrecision(18, 2);
+        modelBuilder
+            .Property(c => c.SourceType)
+            .HasMaxLength(30)
+            .HasDefaultValue("manual");
+        modelBuilder.HasIndex(c => new { c.UserId, c.BudgetId, c.SourceTemplateId });
     }
 }

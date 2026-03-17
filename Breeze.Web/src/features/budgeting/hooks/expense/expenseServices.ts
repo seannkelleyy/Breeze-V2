@@ -11,6 +11,9 @@ export interface Expense {
 	name: string
 	amount: number
 	date: string
+	isRecurring?: boolean
+	recurrenceInterval?: 'none' | 'weekly' | 'biweekly' | 'monthly' | 'quarterly' | 'yearly'
+	dueDayOfMonth?: number | null
 }
 
 export const expenseFormSchema = z.object({
@@ -20,6 +23,8 @@ export const expenseFormSchema = z.object({
 	categoryId: z.number().min(1, { message: 'Category is required' }),
 	amount: z.number().min(0.01, 'Amount must be greater than 0'),
 	date: z.string().refine((val) => /^\d{4}-\d{2}-\d{2}$/.test(val), { message: 'Invalid date format' }),
+	recurrenceInterval: z.enum(['none', 'weekly', 'biweekly', 'monthly', 'quarterly', 'yearly']).optional().default('none'),
+	dueDayOfMonth: z.number().min(1).max(31).nullable().optional(),
 })
 
 /**

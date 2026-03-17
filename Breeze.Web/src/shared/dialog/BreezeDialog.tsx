@@ -1,5 +1,6 @@
 import { ReactNode, useState } from 'react'
 
+import { cn } from '@/lib/utils'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/ui/dialog'
 
 interface BreezeDialogProps {
@@ -10,6 +11,7 @@ interface BreezeDialogProps {
 	children?: ReactNode
 	open?: boolean
 	onOpenChange?: (open: boolean) => void
+	dialogContentClassName?: string
 }
 
 /**
@@ -31,6 +33,7 @@ export const BreezeDialog = ({
 	footerActions,
 	open: controlledOpen,
 	onOpenChange: controlledOnOpenChange,
+	dialogContentClassName,
 }: BreezeDialogProps) => {
 	const [internalOpen, setInternalOpen] = useState(false)
 
@@ -40,7 +43,7 @@ export const BreezeDialog = ({
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogTrigger asChild>{dialogTrigger}</DialogTrigger>
-			<DialogContent className="max-w-[95%] md:max-w-[400px] rounded-md max-h-[90vh] overflow-y-auto">
+			<DialogContent className={cn('max-w-[95%] md:max-w-[400px] rounded-md max-h-[90vh] overflow-y-auto', dialogContentClassName)}>
 				<DialogHeader>
 					<DialogTitle>{title}</DialogTitle>
 					<DialogDescription>{description}</DialogDescription>

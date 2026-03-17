@@ -14,6 +14,7 @@ type FormSelectFieldProps<TFormValues extends FieldValues> = {
 	label: string
 	options: Option[]
 	placeholder?: string
+	parseAsNumber?: boolean
 }
 
 /**
@@ -25,7 +26,14 @@ type FormSelectFieldProps<TFormValues extends FieldValues> = {
  * @param {string} placeholder - Placeholder text for the select field.
  * @returns {JSX.Element} The rendered select field component.
  */
-export const FormSelectField = <TFormValues extends FieldValues>({ form, name, label, options, placeholder }: FormSelectFieldProps<TFormValues>) => {
+export const FormSelectField = <TFormValues extends FieldValues>({
+	form,
+	name,
+	label,
+	options,
+	placeholder,
+	parseAsNumber = true,
+}: FormSelectFieldProps<TFormValues>) => {
 	return (
 		<FormField
 			control={form.control}
@@ -34,7 +42,10 @@ export const FormSelectField = <TFormValues extends FieldValues>({ form, name, l
 				<FormItem>
 					<FormLabel>{label}</FormLabel>
 					<FormControl>
-						<Select value={String(field.value) || ''} onValueChange={(value) => field.onChange(Number(value))}>
+						<Select
+							value={field.value == null ? '' : String(field.value)}
+							onValueChange={(value) => field.onChange(parseAsNumber ? Number(value) : value)}
+						>
 							<SelectTrigger>
 								<SelectValue placeholder={placeholder || 'Select an option'} />
 							</SelectTrigger>

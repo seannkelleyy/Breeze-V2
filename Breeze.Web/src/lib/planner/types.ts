@@ -102,3 +102,56 @@ export type AssetFinanceSnapshot = {
 	monthsSincePurchase: number
 	remainingLoanMonths: number
 }
+
+export type PlannerSummary = {
+	monthlyNeededForDesiredTarget: number
+	requiredMonthlyTargetLabel: string
+	annualHouseholdIncome: number
+	currentSavingsRateEmployeePercent: number
+	currentSavingsRateTotalPercent: number
+	requiredSavingsRatePercent: number
+	savingsRateGapPercent: number
+	weightedAnnualRate: number
+	yearsToGoal: number
+	monthlyGapToGoal: number
+	isMonthlyGapPositive: boolean
+	totalStartingBalance: number
+	totalAssets: number
+	totalLiabilities: number
+	targetAge: number
+	projectedNetWorthAtTargetAge: number
+	totalPlannedMonthlyInvestment: number
+	annualNeedAtRetirement: number
+	financialFreedomTarget: number
+	monthlyNeededForFreedomTarget: number
+}
+
+export type FinancialMathScenario = {
+	label: string
+	spendMultiplier: number
+	yearlySpend: number
+	targetAmount: number
+	percentToGoal: number
+	yearsUntilGoal: number | null
+}
+
+export type FinancialMathSnapshot = {
+	monthlyExpenses: number
+	annualSpend: number
+	emergencyFund3Months: number
+	emergencyFund6Months: number
+	emergencyFund12Months: number
+	selfSalary: number
+	spouseSalary: number
+	grossIncome: number
+	netIncomeFactor: number
+	netIncome: number
+	annualExtraExpenseBuffer: number
+	yearlySavings: number
+	safeWithdrawalRatePercent: number
+	withdrawalMultiplier: number
+	currentPortfolio: number
+	yearlyPortfolioIncome: number
+	yearsToGoalRatePercent: number
+	scenarios: FinancialMathScenario[]
+}

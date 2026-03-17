@@ -9,6 +9,12 @@ export interface Income {
 	name: string
 	amount: number
 	date: string
+	isRecurring?: boolean
+	recurrenceInterval?: 'none' | 'weekly' | 'biweekly' | 'monthly' | 'quarterly' | 'yearly'
+	paydayDayOfMonth?: number | null
+	sourceType?: 'manual' | 'recurring-template'
+	sourceTemplateId?: number | null
+	sourceOccurrenceDate?: string | null
 }
 
 export const incomeFormSchema = z.object({
@@ -20,6 +26,8 @@ export const incomeFormSchema = z.object({
 	date: z.string().refine((val) => /^\d{4}-\d{2}-\d{2}$/.test(val), {
 		message: 'Date must be in YYYY-MM-DD format',
 	}),
+	recurrenceInterval: z.enum(['none', 'weekly', 'biweekly', 'monthly', 'quarterly', 'yearly']).optional().default('none'),
+	paydayDayOfMonth: z.number().min(1).max(31).nullable().optional(),
 })
 
 /**

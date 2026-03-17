@@ -1,15 +1,18 @@
+import { Suspense, lazy } from 'react'
+
 import { Navigate, Outlet, RouterProvider, createBrowserRouter, useNavigate } from 'react-router-dom'
 
 import { Dashboard, DashboardSkeleton } from '@/features/budgeting'
 import { BudgetDataProvider } from '@/features/budgeting/providers'
 import { LandingPage } from '@/features/landingPage'
 import { MortgageTools } from '@/features/mortgageTools'
-import { Planner } from '@/features/planner'
 import { useCurrentUser } from '@/shared/breezeAuthButton'
 import { Navigation } from '@/shared/navigation'
 import { Button } from '@/shared/ui/button'
 
 import { ROUTE_URLS, getHomeRoute } from './routeConfig'
+
+const PlannerPage = lazy(() => import('@/features/planner/pages/Planner').then((module) => ({ default: module.Planner })))
 
 const NotFound = () => {
 	const navigate = useNavigate()
@@ -61,7 +64,11 @@ const router = createBrowserRouter([
 	},
 	{
 		path: ROUTE_URLS.planner,
-		element: <Planner />,
+		element: (
+			<Suspense fallback={<DashboardSkeleton />}>
+				<PlannerPage />
+			</Suspense>
+		),
 	},
 	{
 		path: ROUTE_URLS.mortgageTools,

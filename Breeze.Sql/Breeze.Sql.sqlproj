@@ -66,6 +66,9 @@
     <Build Include="PlannerProfile.sql" />
     <Build Include="PlannerPerson.sql" />
     <Build Include="PlannerAccount.sql" />
+    <Build Include="UserPreference.sql" />
+    <Build Include="RecurringIncomeTemplate.sql" />
+    <Build Include="RecurringCategoryTemplate.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="Breeze.Sql.refactorlog" />

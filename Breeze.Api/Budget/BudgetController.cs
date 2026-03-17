@@ -46,5 +46,33 @@ namespace Breeze.Api.Budgets
             }
         }
 
+        [HttpPost("{year}-{month}/regenerate")]
+        [Authorize]
+        public IActionResult RegenerateBudgetMonth([FromRoute] int year, [FromRoute] int month)
+        {
+            try
+            {
+                var userId = User.FindFirst("sub")?.Value;
+
+                if (string.IsNullOrWhiteSpace(userId))
+                {
+                    return Unauthorized();
+                }
+
+                var result = budgets.RegenerateMonth(userId, year, month);
+                if (result is null)
+                {
+                    return NotFound("No budget found for the specified month.");
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to regenerate budget month");
+                return BadRequest("Something went wrong.");
+            }
+        }
+
     }
 }

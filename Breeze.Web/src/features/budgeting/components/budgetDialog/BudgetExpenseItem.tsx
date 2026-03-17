@@ -1,8 +1,8 @@
 import { UseFormReturn } from 'react-hook-form'
 
+import { BudgetFormData } from '@/features/budgeting/hooks/budget/budgetServices'
 import { DeleteConfirmationDialog } from '@/shared/deleteConfirmation/DeleteConfirmationDialog'
 import { FormInputField } from '@/shared/form/FormInputField'
-import { BudgetFormData } from '@/features/budgeting/hooks/budget/budgetServices'
 
 type BudgetExpenseItemProps = {
 	index: number
@@ -19,20 +19,28 @@ type BudgetExpenseItemProps = {
  */
 export function BudgetExpenseItem({ index, form, deleteCategory }: BudgetExpenseItemProps) {
 	return (
-		<section className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_auto] gap-2 items-start">
-			<FormInputField form={form} name={`categories.${index}.name`} label="Name" placeholder="Expense" hideLabel />
-			<FormInputField form={form} name={`categories.${index}.allocation`} label="Allocation" type="number" placeholder="0" hideLabel />
-			<DeleteConfirmationDialog
-				key={form.getValues().categories[index].id}
-				itemType="expense category"
-				additionalText={
-					<>
-						<p>Deleting this category will remove all expenses associated with it.</p>
-						<p>Are you sure you want to delete this category?</p>
-					</>
-				}
-				onDelete={() => deleteCategory(index)}
-			/>
+		<section className="rounded-lg border p-4 bg-background/70">
+			<div className="grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
+				<div className="md:col-span-4">
+					<FormInputField form={form} name={`categories.${index}.name`} label="Name" placeholder="Expense" />
+				</div>
+				<div className="md:col-span-1">
+					<FormInputField form={form} name={`categories.${index}.allocation`} label="Allocation" type="number" placeholder="0" />
+				</div>
+				<div className="md:col-span-1 flex md:justify-end pt-1">
+					<DeleteConfirmationDialog
+						key={form.getValues().categories[index].id}
+						itemType="expense category"
+						additionalText={
+							<>
+								<p>Deleting this category will remove all expenses associated with it.</p>
+								<p>Are you sure you want to delete this category?</p>
+							</>
+						}
+						onDelete={() => deleteCategory(index)}
+					/>
+				</div>
+			</div>
 		</section>
 	)
 }

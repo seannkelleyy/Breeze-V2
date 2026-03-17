@@ -144,6 +144,29 @@ namespace Breeze.Api.Planner
 
                 foreach (var budget in budgets)
                 {
+                    var budgetMonthExpenseTotal = db.Expenses
+                        .Where(expense =>
+                            expense.UserId.Equals(userId)
+                            && expense.Date.Month == budget.Date.Month
+                            && expense.Date.Year == budget.Date.Year)
+                        .Select(expense => (decimal?)expense.Amount)
+                        .Sum() ?? 0;
+
+                    if (budgetMonthExpenseTotal > 0)
+                    {
+                        return budgetMonthExpenseTotal;
+                    }
+
+                    var budgetCategorySpendTotal = db.Categories
+                        .Where(category => category.UserId.Equals(userId) && category.BudgetId.Equals(budget.Id))
+                        .Select(category => (decimal?)category.CurrentSpend)
+                        .Sum() ?? 0;
+
+                    if (budgetCategorySpendTotal > 0)
+                    {
+                        return budgetCategorySpendTotal;
+                    }
+
                     if (budget.MonthlyExpenses > 0)
                     {
                         return budget.MonthlyExpenses;
@@ -159,19 +182,6 @@ namespace Breeze.Api.Planner
                         return budgetCategoryAllocationTotal;
                     }
 
-                    var budgetMonthExpenseTotal = db.Expenses
-                        .Where(expense =>
-                            expense.UserId.Equals(userId)
-                            && expense.Date.Month == budget.Date.Month
-                            && expense.Date.Year == budget.Date.Year)
-                        .Select(expense => (decimal?)expense.Amount)
-                        .Sum() ?? 0;
-
-                    if (budgetMonthExpenseTotal > 0)
-                    {
-                        return budgetMonthExpenseTotal;
-                    }
-
                     var budgetCategoryIds = db.Categories
                         .Where(category => category.UserId.Equals(userId) && category.BudgetId.Equals(budget.Id))
                         .Select(category => category.Id)
@@ -180,23 +190,17 @@ namespace Breeze.Api.Planner
                     if (budgetCategoryIds.Count > 0)
                     {
                         var budgetCategoryExpenseTotal = db.Expenses
-                            .Where(expense => expense.UserId.Equals(userId) && budgetCategoryIds.Contains(expense.CategoryId))
+                            .Where(expense =>
+                                expense.UserId.Equals(userId)
+                                && budgetCategoryIds.Contains(expense.CategoryId)
+                                && expense.Date.Month == budget.Date.Month
+                                && expense.Date.Year == budget.Date.Year)
                             .Select(expense => (decimal?)expense.Amount)
                             .Sum() ?? 0;
 
                         if (budgetCategoryExpenseTotal > 0)
                         {
                             return budgetCategoryExpenseTotal;
-                        }
-
-                        var budgetCategorySpendTotal = db.Categories
-                            .Where(category => category.UserId.Equals(userId) && category.BudgetId.Equals(budget.Id))
-                            .Select(category => (decimal?)category.CurrentSpend)
-                            .Sum() ?? 0;
-
-                        if (budgetCategorySpendTotal > 0)
-                        {
-                            return budgetCategorySpendTotal;
                         }
                     }
                 }

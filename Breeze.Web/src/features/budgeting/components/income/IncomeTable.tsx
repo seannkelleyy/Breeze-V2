@@ -16,6 +16,7 @@ import { ArrowUpDown } from 'lucide-react'
 
 import { Income } from '@/features/budgeting/hooks/income/incomeServices'
 import { useBudgetContext } from '@/features/budgeting/providers'
+import { Badge } from '@/shared/ui/badge'
 import { Button } from '@/shared/ui/button'
 import { Input } from '@/shared/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui/table'
@@ -32,6 +33,14 @@ export const IncomeTable = () => {
 	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
 	const [rowSelection, setRowSelection] = React.useState({})
 	const { incomes = [] } = useBudgetContext()
+	const recurrenceLabelByInterval: Record<string, string> = {
+		none: 'One-time',
+		weekly: 'Weekly',
+		biweekly: 'Biweekly',
+		monthly: 'Monthly',
+		quarterly: 'Quarterly',
+		yearly: 'Yearly',
+	}
 
 	const columns = React.useMemo<ColumnDef<Income>[]>(
 		() => [
@@ -45,6 +54,12 @@ export const IncomeTable = () => {
 						</Button>
 					)
 				},
+				cell: ({ row }) => (
+					<div className="flex items-center gap-2">
+						<span>{row.original.name}</span>
+						{row.original.sourceType === 'recurring-template' ? <Badge variant="outline">Template</Badge> : null}
+					</div>
+				),
 			},
 			{
 				accessorKey: 'amount',
@@ -80,8 +95,21 @@ export const IncomeTable = () => {
 					return dayjs(date).format('MMMM D, YYYY')
 				},
 			},
+			{
+				id: 'schedule',
+				header: 'Schedule',
+				cell: ({ row }) => {
+					const recurrenceInterval = row.original.recurrenceInterval ?? 'none'
+					if (recurrenceInterval === 'none') {
+						return 'One-time'
+					}
+
+					const payday = row.original.paydayDayOfMonth
+					return `${recurrenceLabelByInterval[recurrenceInterval] ?? 'Recurring'}${payday ? ` - day ${payday}` : ''}`
+				},
+			},
 		],
-		[]
+		[recurrenceLabelByInterval]
 	)
 
 	// Calculate total amount
@@ -144,7 +172,11 @@ export const IncomeTable = () => {
 								<TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell key={cell.id}>
-											<EditIncomeDialog existingIncome={row.original}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</EditIncomeDialog>
+											{row.original.sourceType === 'recurring-template' ? (
+												<div className="text-muted-foreground">{flexRender(cell.column.columnDef.cell, cell.getContext())}</div>
+											) : (
+												<EditIncomeDialog existingIncome={row.original}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</EditIncomeDialog>
+											)}
 										</TableCell>
 									))}
 								</TableRow>

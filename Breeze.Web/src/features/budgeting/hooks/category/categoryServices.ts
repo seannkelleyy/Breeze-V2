@@ -9,6 +9,9 @@ export interface Category {
 	budgetId: number
 	currentSpend: number
 	allocation: number
+	sourceType?: 'manual' | 'recurring-template'
+	sourceTemplateId?: number | null
+	generationMonth?: string | null
 }
 
 export const categoryFormSchema = z.object({

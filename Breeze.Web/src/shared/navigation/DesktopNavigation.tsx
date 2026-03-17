@@ -1,3 +1,5 @@
+import { UserPreferencesModal } from '@/features/userPreferences/components/UserPreferencesModal'
+
 import { BreezeAuthButton } from '../breezeAuthButton/BreezeAuthButton'
 import { ThemeToggle } from '../theme/ThemeToggle'
 import { Menubar, MenubarContent, MenubarMenu, MenubarSeparator, MenubarTrigger } from '../ui/menubar'
@@ -36,6 +38,7 @@ export const DesktopNavigation = () => {
 				<u>{navLabels.brandName}</u>
 			</h1>
 			<div className="flex justify-end items-center gap-2 z-10">
+				<UserPreferencesModal />
 				<ThemeToggle />
 				<BreezeAuthButton />
 			</div>
