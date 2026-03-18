@@ -7,9 +7,9 @@ import { BudgetDataProvider } from '@/features/budgeting/providers'
 import { LandingPage } from '@/features/landingPage'
 import { MortgageTools } from '@/features/mortgageTools'
 import { useCurrentUser } from '@/shared/breezeAuthButton'
-import { Navigation } from '@/shared/navigation'
 import { Button } from '@/shared/ui/button'
 
+import { MainLayout } from './MainLayout'
 import { ROUTE_URLS, getHomeRoute } from './routeConfig'
 
 const PlannerPage = lazy(() => import('@/features/planner/pages/Planner').then((module) => ({ default: module.Planner })))
@@ -21,7 +21,6 @@ const NotFound = () => {
 
 	return (
 		<div className="h-screen w-screen flex flex-col justify-center items-center">
-			<Navigation />
 			<h1 className="text-3xl font-bold mb-4">404 - Page Not Found</h1>
 			<Button onClick={() => navigate(homeUrl)}>Go to Home</Button>
 		</div>
@@ -40,43 +39,43 @@ const ProtectedRoute = () => {
 const router = createBrowserRouter([
 	{
 		path: ROUTE_URLS.login,
-		element: (
-			<>
-				<Navigation />
-				<LandingPage />
-			</>
-		),
+		element: <LandingPage />,
 	},
 	{
-		path: ROUTE_URLS.signedInHome,
-		element: <ProtectedRoute />,
+		path: '/',
+		element: <MainLayout />,
 		children: [
 			{
-				index: true,
+				path: ROUTE_URLS.signedInHome,
+				element: <ProtectedRoute />,
+				children: [
+					{
+						index: true,
+						element: (
+							<BudgetDataProvider>
+								<Dashboard />
+							</BudgetDataProvider>
+						),
+					},
+				],
+			},
+			{
+				path: ROUTE_URLS.planner,
 				element: (
-					<BudgetDataProvider>
-						<Navigation />
-						<Dashboard />
-					</BudgetDataProvider>
+					<Suspense fallback={<DashboardSkeleton />}>
+						<PlannerPage />
+					</Suspense>
 				),
 			},
+			{
+				path: ROUTE_URLS.mortgageTools,
+				element: <MortgageTools />,
+			},
+			{
+				path: ROUTE_URLS.notFound,
+				element: <NotFound />,
+			},
 		],
-	},
-	{
-		path: ROUTE_URLS.planner,
-		element: (
-			<Suspense fallback={<DashboardSkeleton />}>
-				<PlannerPage />
-			</Suspense>
-		),
-	},
-	{
-		path: ROUTE_URLS.mortgageTools,
-		element: <MortgageTools />,
-	},
-	{
-		path: ROUTE_URLS.notFound,
-		element: <NotFound />,
 	},
 ])
 
