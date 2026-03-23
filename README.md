@@ -16,7 +16,12 @@ Getting Started:
   5. After the install, you can run the command "npm run dev"
   6. After all of this, the backend should be running and your frontend should be as well, next you need to setup a connection string for your database.
   7. After setting up a database, get the connection string and add it to the file named "appsettings.development.json" in the /Breeze.API folder in the backend.
-  8. Your application should be good to go at this point.
+       EX: {
+  	"ConnectionStrings": {
+  		"breezeDb-local": "Host=localhost;Port=5432;Database=Breeze-local;Username=postgres;Password="
+  	}
+  }
+  9. Your application should be good to go at this point.
 
 HOSTED APP LINK: https://breezebudgeting.azurewebsites.net/
 This app is hosted in Azure using App Servies for the front end and backend as well as an AzureSQL database. 
